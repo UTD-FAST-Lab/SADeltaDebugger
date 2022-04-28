@@ -1,0 +1,238 @@
+<!-- Schema downloaded from Felix Pauck's AQL-System github repository.
+Link to file is https://github.com/FoelliX/AQL-System/blob/master/schemas/answer.xsd,
+last accessed 2020-06-02
+This schema is changed to add the element "answer"
+-->
+            <xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                <xsd:element name="hash">
+                    <xsd:complexType>
+                        <xsd:simpleContent>
+                            <xsd:extension base="xsd:string">
+                                <xsd:attribute type="xsd:string" name="type"/>
+                            </xsd:extension>
+                        </xsd:simpleContent>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="file" type="xsd:string"/>
+                <xsd:element name="hashes">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element ref="hash" maxOccurs="unbounded" minOccurs="0"/>
+                        </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="method" type="xsd:string"/>
+    <xsd:element name="classname" type="xsd:string"/>
+    <xsd:element name="app">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="file"/>
+                <xsd:element ref="hashes"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="value" type="xsd:string"/>
+    <xsd:element name="attribute">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="name"/>
+                <xsd:element ref="value"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="reference">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="statement" minOccurs="0"/>
+                <xsd:element ref="method" minOccurs="0"/>
+                <xsd:element ref="classname" minOccurs="0"/>
+                <xsd:element ref="app"/>
+            </xsd:sequence>
+            <xsd:attribute type="xsd:string" name="type"/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="attributes">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="attribute" maxOccurs="unbounded" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="permission">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="name"/>
+                <xsd:element ref="reference"/>
+                <xsd:element ref="attributes" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="type" type="xsd:string"/>
+    <xsd:element name="scheme" type="xsd:string"/>
+    <xsd:element name="ssp" type="xsd:string"/>
+    <xsd:element name="host" type="xsd:string"/>
+    <xsd:element name="port" type="xsd:string"/>
+    <xsd:element name="path" type="xsd:string"/>
+    <xsd:element name="action" type="xsd:string"/>
+    <xsd:element name="category" type="xsd:string"/>
+    <xsd:element name="data">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="type" minOccurs="0"/>
+                <xsd:element ref="scheme" minOccurs="0"/>
+                <xsd:element ref="ssp" minOccurs="0"/>
+                <xsd:element ref="host" minOccurs="0"/>
+                <xsd:element ref="port" minOccurs="0"/>
+                <xsd:element ref="path" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="parameter">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="type"/>
+                <xsd:element ref="value"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="statementfull" type="xsd:string"/>
+    <xsd:element name="statementgeneric" type="xsd:string"/>
+    <xsd:element name="parameters">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="parameter" maxOccurs="unbounded" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="statement">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="statementfull"/>
+                <xsd:element ref="statementgeneric"/>
+                <xsd:element ref="parameters" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="target">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="action" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="category" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="data" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="reference" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="intentsource">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="target"/>
+                <xsd:element ref="reference"/>
+                <xsd:element ref="attributes" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="intentsink">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="target"/>
+                <xsd:element ref="reference"/>
+                <xsd:element ref="attributes" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="intent">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="reference"/>
+                <xsd:element ref="target"/>
+                <xsd:element ref="attributes" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="intentfilter">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="reference"/>
+                <xsd:element ref="action" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="category" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="data" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="attributes" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="flow">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="reference" maxOccurs="unbounded" minOccurs="0"/>
+                <xsd:element ref="attributes" minOccurs="0"/>
+                <xsd:element ref="classification" minOccurs="0"/>
+            </xsd:sequence>
+            <xsd:attribute type="xsd:string" name="generating_config"/>
+            <xsd:attribute type="xsd:string" name="id"/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="justification" type="xsd:string"/>
+    <xsd:element name="result" type="xsd:string"/>
+    <xsd:element name="crossref" type="xsd:string"/>
+    <xsd:element name="classification">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="result"/>
+                <xsd:element ref="justification"/>
+                <xsd:element ref="crossref" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="permissions">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="permission" maxOccurs="unbounded" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="intentsources">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="intentsource" maxOccurs="unbounded" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="intentsinks">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="intentsink" maxOccurs="unbounded" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="intents">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="intent" maxOccurs="unbounded" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="intentfilters">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="intentfilter" maxOccurs="unbounded" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="flows">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="flow" maxOccurs="unbounded" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="answer">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="flows" maxOccurs="unbounded" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>
