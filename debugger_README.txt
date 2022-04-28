@@ -1,31 +1,24 @@
 
 0. Prequisites
 
-	#Anything else?
-	0a. AndroidTAEnvironment needs to be properly setup:
-	https://github.com/amordahl/AndroidTAEnvironment 
-	0b. Clone this repo 
-	https://github.com/Pancax/droidbench_android_projects
-
 1. Setup environment variables
-	JAVA_HOME="your java version"
-	ANDROID_SDK_HOME=" .../Android/platforms"
-	ANDROID_SDK_ROOT=" .../Android"
-	ANDROID_TA_ENVIRONMENT_HOME="wherever you put AndroidTAEnvironment repo   .../AndroidTAEnvironment"
-	ANDROID_FAULTLOCALIZATION_HOME="where you put AndroidTA_FaultLocalization .../AndroidTA_FaultLocalization"
-
-
+	JAVA_HOME="your java version", needs to be 1.8 probably
+	DELTA_DEBUGGER_HOME="wherever you put the repo"
 
 2. Build Debugger Prerequisites
 	mvn install in resources/delta_debugger/ProjectLineCounter
-	mvn install in resources/delta_debugger/DroidbenchProjectCreator
-	mvn install in resources/delta_debugger/AQLFileFlowReader
 	
 3. Build Debugger
 	mvn package in resources/delta_debugger/ViolationDeltaDebugger
 
 4. Explanation of Options
 	
+	Positional Arguments
+	0	Path to main/src of java code
+	1	Path to the apk created by the build script
+	2	Path to the build script (shell)
+	3	Path to the recreation script (shell)
+
 	Option 				Type		Explanation
 	-l				Optional	This option turns on logging data for debugging
 	-c				Reduction	This option enables the debugger to perform a class-based reduction
@@ -33,11 +26,11 @@
 	-hdd				Reduction	This option enables the debugger to perform a regular HDD reduction
 	-nam				Optional	This option enables the optimization for non-removal of abstract/interface methods (doesn't work)
 	-no_opt				Optional	This option disables optimizations for the HDD algorithm (currently this is only the source/sink non-removal)
-	-p <string>			Optional	This option provides a name for the run called a prefix, use it by doing -p prefix
+	-p <string>			Required	This option provides a name for the run called a prefix, use it by doing -p prefix
 	-t <int>			Optional	This option allows you to specify a time for the HDD part of the reduction
 	-bt <int>			Optional	This option allows you to specify a time for the class-based reduction
-	-root_projects <string> 	Required	This option is required, specify the directory the project your are debugging is in for droidbench this will be where you placed the droidbench_android_projects repo
-	-check_d			Optional	
+	-root_projects <string> 	Optional	This option is not needed, specify the directory the project your are debugging is in for droidbench this will be where you placed the droidbench_android_projects repo
+	-check_d			Optional	This option tells the debugger to run determinism checks
 
 5. setup the symbolic links and required files for debugger
 	goto deltadebugger_runs/ and setup correct symbolic links
