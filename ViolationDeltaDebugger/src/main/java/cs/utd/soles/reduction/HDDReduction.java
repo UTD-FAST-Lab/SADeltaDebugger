@@ -9,8 +9,6 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
-import com.utdallas.cs.alps.flows.Flow;
-import com.utdallas.cs.alps.flows.Flowset;
 import cs.utd.soles.buildphase.BuildScriptRunner;
 import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.determinism.CheckDeterminism;

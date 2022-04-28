@@ -1,6 +1,5 @@
 package cs.utd.soles.setup;
 
-import com.utdallas.cs.alps.flows.Flowset;
 
 import java.util.HashMap;
 import java.util.Map;
