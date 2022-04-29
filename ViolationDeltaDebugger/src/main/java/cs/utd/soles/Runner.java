@@ -31,7 +31,7 @@ public class Runner {
             programInfo.getPerfTracker().startTimer("setup_timer");
             programInfo.doSetup(args);
 
-            originalCuList=createCuList(programInfo.getRootProjectDir(), programInfo.getJavaParseInst());
+            originalCuList=createCuList(programInfo.getRootProjectDirs(), programInfo.getJavaParseInst());
 
             //trackFilesChanges(programInfo,originalCuList);
 
@@ -44,8 +44,11 @@ public class Runner {
             }
             //System.out.print("done check");
             saveBestAPK(programInfo);
-            programInfo.getPerfTracker().setCount("start_line_count", (int) LineCounter.countLinesDir(programInfo.getRootProjectDir().getAbsolutePath()));
+            programInfo.getPerfTracker().setCount("start_line_count", 0);
 
+            for(File x: programInfo.getRootProjectDirs()) {
+                LineCounter.countLinesDir(x.getAbsolutePath());
+            }
             programInfo.getPerfTracker().stopTimer("setup_timer");
             //check if we need to do a minimization
             /*if(!programInfo.isNeedsToBeMinimized()){
@@ -151,7 +154,11 @@ public class Runner {
 
         //handle end line count
         try {
-            int count = (int) LineCounter.countLinesDir(programInfo.getRootProjectDir().getAbsolutePath());
+
+            int count = 0;
+            for(File x: programInfo.getRootProjectDirs()){
+                count+=LineCounter.countLinesDir(x.getAbsolutePath());
+            }
             programInfo.getPerfTracker().setCount("end_line_count",count);
             String bigString="";
             PerfTracker pt = programInfo.getPerfTracker();
@@ -354,26 +361,28 @@ public class Runner {
             return null;
     }*/
 
-    private static ArrayList<Pair<File,CompilationUnit>> createCuList(File javadirpath, JavaParser parser) throws IOException {
+    private static ArrayList<Pair<File,CompilationUnit>> createCuList(ArrayList<File> javadirpaths, JavaParser parser) throws IOException {
 
         ArrayList<Pair<File,CompilationUnit>> returnList = new ArrayList<>();
 
-        File f = javadirpath;
-        System.out.println("Java dir path: "+ javadirpath);
-        if(!f.exists()){
-            throw new FileNotFoundException(javadirpath + "not found");
-        }
+        for(File javadirpath:javadirpaths) {
+            File f = javadirpath;
+            System.out.println("Java dir path: " + javadirpath);
+            if (!f.exists()) {
+                throw new FileNotFoundException(javadirpath + "not found");
+            }
 
-        String[] extensions = {"java"};
-        List<File> allJFiles = ((List<File>) FileUtils.listFiles(f, extensions, true));
-        int i=0;
-        for(File x: allJFiles){
-            //don't add the unmodified source files cause they will just duplicate endlessly
-            if(!x.getAbsolutePath().contains("unmodified_src")) {
-                i++;
-                Pair<File, CompilationUnit> b = new Pair(x, parser.parse(x).getResult().get());
-                returnList.add(b);
+            String[] extensions = {"java"};
+            List<File> allJFiles = ((List<File>) FileUtils.listFiles(f, extensions, true));
+            int i = 0;
+            for (File x : allJFiles) {
+                //don't add the unmodified source files cause they will just duplicate endlessly
+                if (!x.getAbsolutePath().contains("unmodified_src")) {
+                    i++;
+                    Pair<File, CompilationUnit> b = new Pair(x, parser.parse(x).getResult().get());
+                    returnList.add(b);
 
+                }
             }
         }
 

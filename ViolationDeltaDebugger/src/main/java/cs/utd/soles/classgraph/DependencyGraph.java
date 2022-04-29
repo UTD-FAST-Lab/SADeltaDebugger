@@ -1,6 +1,7 @@
 package cs.utd.soles.classgraph;
 
 import cs.utd.soles.callgraph.methodgraph.MethodNode;
+import cs.utd.soles.classgraph.ClassNode;
 
 import java.io.File;
 import java.io.FileNotFoundException;

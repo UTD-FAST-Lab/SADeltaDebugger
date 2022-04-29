@@ -6,6 +6,7 @@ import cs.utd.soles.PerfTracker;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class SetupClass {
 
@@ -31,8 +32,8 @@ public class SetupClass {
     }
 
 
-    public File getRootProjectDir() {
-        return rootProjectDir;
+    public ArrayList<File> getRootProjectDirs() {
+        return rootProjectDirs;
     }
 
     public File getBuildScriptFile() {
@@ -47,7 +48,7 @@ public class SetupClass {
         return apkFile;
     }
 
-    File rootProjectDir;
+    ArrayList<File> rootProjectDirs;
     boolean violationOrNot;
     ArgsHandler arguments;
     String thisRunName;
@@ -73,27 +74,29 @@ public class SetupClass {
     public boolean doSetup(String[] args) throws IOException {
 
         //positionals
-        //0 root
-        //1 apk file
-        //2 buildscript
-        //3 test
-
-        rootProjectDir=Paths.get(args[0]).toFile();
-        apkFile=Paths.get(args[1]).toFile();
-        buildScriptFile=Paths.get(args[2]).toFile();
-        testScriptFile=Paths.get(args[3]).toFile();
-
 
         arguments = handleArgs(args);
         javaParseInst = new JavaParser(parserConfig);
         return true;
     }
 
-
+    public void addSrcDir(File srcFile){
+        rootProjectDirs.add(srcFile);
+    }
+    public void setApkFile(File apkFile)
+    {
+        this.apkFile = apkFile;
+    }
+    public void setTestScriptFile(File testSFile){
+        this.testScriptFile=testSFile;
+    }
+    public void setBuildScriptFile(File buildSFile){
+        this.buildScriptFile=buildSFile;
+    }
 
     private ArgsHandler handleArgs(String[] args) {
 
-        return new ArgsHandler(args);
+        return new ArgsHandler(args,this);
     }
 
 

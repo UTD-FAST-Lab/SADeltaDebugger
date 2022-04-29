@@ -1,7 +1,7 @@
 package cs.utd.soles.buildphase;
 
 import cs.utd.soles.setup.SetupClass;
-import cs.utd.soles.threads.CommandThread;
+import cs.utd.soles.threads.*;
 
 public class BuildScriptRunner {
 

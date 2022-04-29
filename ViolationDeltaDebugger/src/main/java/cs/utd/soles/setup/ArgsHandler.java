@@ -1,6 +1,7 @@
 package cs.utd.soles.setup;
 
 
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -8,10 +9,35 @@ import java.util.Optional;
 public class ArgsHandler{
 
     HashMap<String, Object> argValues=new HashMap<>();
-    public ArgsHandler(String[] args){
+    public ArgsHandler(String[] args, SetupClass thing){
         argValues.put("RUN_PREFIX","");
-        for(int i=1;i<args.length;i++) {
+        for(int i=0;i<args.length;i++) {
 
+
+            if(args[i].equals("-src")){
+                i++;
+                while(!args[i+1].matches("-*+")){
+                    thing.addSrcDir(Paths.get(args[i]).toFile());
+                    i++;
+                }
+                thing.addSrcDir(Paths.get(args[i]).toFile());
+            }
+
+
+
+            if(args[i].equals("-apk")){
+                thing.setApkFile(Paths.get(args[i+1]).toFile());
+                i++;
+            }
+
+            if(args[i].equals("-vs")){
+                thing.setTestScriptFile(Paths.get(args[i+1]).toFile());
+                i++;
+            }
+            if(args[i].equals("-bs")){
+                thing.setBuildScriptFile(Paths.get(args[i+1]).toFile());
+                i++;
+            }
             if (args[i].equals("-l")) {
                 argValues.put("LOG",true);
             }
