@@ -17,8 +17,8 @@ public class BuildScriptRunner {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("Script printed out " + testThread.returnOutput());
 
+        System.out.println("Exit code of running build script was " + testThread.process.exitValue());
         return testThread.process.exitValue() == 0;
 
     }
