@@ -17,7 +17,7 @@ public class BuildScriptRunner {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println(testThread.returnOutput());
+        System.out.println("Script printed out " + testThread.returnOutput());
 
         return testThread.returnOutput().trim().equalsIgnoreCase("true");
 
