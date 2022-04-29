@@ -1,6 +1,7 @@
 package cs.utd.soles.threads;
 
 
+
 public class CommandThread extends Thread{
 
     String command="";
@@ -15,12 +16,12 @@ public class CommandThread extends Thread{
 
     String output="";
 
-    Process process = null;
+    public Process process = null;
     @Override
     public void run() {
         try {
             output = ReadProcess.readProcess(command);
-            process = ReadProcess.process;
+            this.process = ReadProcess.process;
         }catch(Exception e){
             e.printStackTrace();
         }
