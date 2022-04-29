@@ -9,7 +9,7 @@ public class TestScriptRunner {
     public static boolean runTestScript(SetupClass c){
 
         //hopefully this test script just prints out true/false
-        String command = "sh "+c.getTestScriptFile().toString() +" "+c.getAPKFile();
+        String command = c.getTestScriptFile().toString() +" "+c.getAPKFile();
         System.out.println(command);
         CommandThread testThread = new CommandThread(command);
         testThread.start();

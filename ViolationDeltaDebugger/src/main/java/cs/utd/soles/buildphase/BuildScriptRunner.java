@@ -8,7 +8,7 @@ public class BuildScriptRunner {
     public static boolean runBuildScript(SetupClass c){
 
         //hopefully this test script just prints out true/false
-        String command = "sh "+c.getBuildScriptFile().toString();
+        String command = c.getBuildScriptFile().toString();
         System.out.println(command);
         CommandThread testThread = new CommandThread(command);
         testThread.start();
