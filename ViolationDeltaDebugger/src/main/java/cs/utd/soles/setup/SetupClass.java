@@ -74,7 +74,7 @@ public class SetupClass {
     public boolean doSetup(String[] args) throws IOException {
 
         //positionals
-
+        rootProjectDirs = new ArrayList<>();
         arguments = handleArgs(args);
         javaParseInst = new JavaParser(parserConfig);
         return true;
