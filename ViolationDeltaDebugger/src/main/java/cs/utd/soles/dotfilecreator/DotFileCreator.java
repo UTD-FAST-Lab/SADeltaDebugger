@@ -144,6 +144,7 @@ public class DotFileCreator {
     private static File turnJarOrApkIntoClassFileDir(File apkFile) {
 
         File jarFile = apkFile;
+
         if(apkFile.getName().contains(".apk")){
             //this is an apk file, first convert it into a jar file
             //command
@@ -151,26 +152,30 @@ public class DotFileCreator {
 
             //dex to jar sh is in AndroidTA_FaultLocalization/resources/delta_debugger/dex-tools-2.1
             // ./d2j-dex2jar.sh -f  "path to apk" -o "outputfile.jar"
-            String command = System.getenv().get("DELTA_DEBUGGER_HOME")+"/dex-tools-2.1/d2j-dex2jar.sh -f "+apkFile.getAbsolutePath()+" -o "+outputFilePath;
+            String command = "sh "+System.getenv().get("DELTA_DEBUGGER_HOME")+"/dex-tools-2.1/d2j-dex2jar.sh -f "+apkFile.getAbsolutePath()+" -o "+outputFilePath;
             CommandThread dex2jarCommand = new CommandThread(command);
+            System.out.println(command);
             dex2jarCommand.start();
             try {
                 dex2jarCommand.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
+            System.out.println(dex2jarCommand.returnOutput());
             jarFile= Paths.get(outputFilePath).toFile();
         }
-
-        jarFile.renameTo(new File(jarFile.getAbsolutePath().replace(".jar", ".zip")));
         File zipFile = new File(jarFile.getAbsolutePath().replace(".jar", ".zip"));
+
+
         String destUnzipFile = zipFile.getAbsolutePath().replace(".zip","");
 
         try{
+            FileUtils.copyFile(jarFile,zipFile);
             ZipFile src = new ZipFile(zipFile);
             src.extractAll(destUnzipFile);
         } catch (ZipException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return Paths.get(destUnzipFile).toFile();
