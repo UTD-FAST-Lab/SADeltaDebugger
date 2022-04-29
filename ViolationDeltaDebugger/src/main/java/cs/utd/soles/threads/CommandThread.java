@@ -15,11 +15,12 @@ public class CommandThread extends Thread{
 
     String output="";
 
+    Process process = null;
     @Override
     public void run() {
         try {
             output = ReadProcess.readProcess(command);
-
+            process = ReadProcess.process;
         }catch(Exception e){
             e.printStackTrace();
         }

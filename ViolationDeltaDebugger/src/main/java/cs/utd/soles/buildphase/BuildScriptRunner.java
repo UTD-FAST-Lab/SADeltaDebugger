@@ -19,7 +19,7 @@ public class BuildScriptRunner {
         }
         System.out.println("Script printed out " + testThread.returnOutput());
 
-        return testThread.returnOutput().trim().equalsIgnoreCase("true");
+        return testThread.process.exitValue() == 0;
 
     }
 }

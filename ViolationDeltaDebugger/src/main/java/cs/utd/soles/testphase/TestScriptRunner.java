@@ -18,7 +18,6 @@ public class TestScriptRunner {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return testThread.returnOutput().trim().equalsIgnoreCase("true");
-
+        return testThread.process.exitCode() == 0;
     }
 }

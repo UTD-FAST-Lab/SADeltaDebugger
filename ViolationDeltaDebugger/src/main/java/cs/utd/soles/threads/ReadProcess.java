@@ -7,6 +7,7 @@ import java.util.List;
 
 public class ReadProcess {
 
+    public static Process process;
     public static String readProcess(String[] commands) throws IOException, InterruptedException {
 
         Process p = Runtime.getRuntime().exec(commands);
@@ -26,6 +27,7 @@ public class ReadProcess {
         }
         p.waitFor();
        // System.out.println("thread output: "+output);
+        ReadProcess.process = p
         return output;
     }
 
@@ -48,6 +50,7 @@ public class ReadProcess {
         }
         p.waitFor();
         //System.out.println("thread output: "+output);
+        ReadProcess.process = p
         return output;
     }
 
