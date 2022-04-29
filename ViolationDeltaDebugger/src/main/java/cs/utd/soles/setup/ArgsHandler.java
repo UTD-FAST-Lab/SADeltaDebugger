@@ -16,7 +16,7 @@ public class ArgsHandler{
 
             if(args[i].equals("-src")){
                 i++;
-                while(!args[i+1].matches("-*+")){
+                while(!args[i+1].matches("-.+")){
                     thing.addSrcDir(Paths.get(args[i]).toFile());
                     i++;
                 }
