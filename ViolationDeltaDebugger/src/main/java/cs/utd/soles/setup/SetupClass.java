@@ -77,6 +77,7 @@ public class SetupClass {
         rootProjectDirs = new ArrayList<>();
         arguments = handleArgs(args);
         javaParseInst = new JavaParser(parserConfig);
+        thisRunName=arguments.getValueOfArg("RUN_PREFIX")+this.apkFile.getName();
         return true;
     }
 

@@ -12,8 +12,6 @@ public class ArgsHandler{
     public ArgsHandler(String[] args, SetupClass thing){
         argValues.put("RUN_PREFIX","");
         for(int i=0;i<args.length;i++) {
-
-
             if(args[i].equals("-src")){
                 i++;
                 while(!args[i+1].matches("-.+")){
@@ -22,9 +20,6 @@ public class ArgsHandler{
                 }
                 thing.addSrcDir(Paths.get(args[i]).toFile());
             }
-
-
-
             if(args[i].equals("-apk")){
                 thing.setApkFile(Paths.get(args[i+1]).toFile());
                 i++;
@@ -50,17 +45,13 @@ public class ArgsHandler{
             if(args[i].equals("-hdd")){
                 argValues.put("REGULAR_REDUCTION",true);
             }
-            if(args[i].equals("-nam")){
-                //no abstract methods
-                argValues.put("NO_ABSTRACT_METHODS",true);
-            }
             if(args[i].equals("-no_opt")){
                 argValues.put("NO_OPTIMIZATION",true);
             }
             if(args[i].equals("-p")){
                 String prefix=args[i+1];
                 prefix = prefix.replace("/","-");
-                argValues.put("RUN_PREFIX",prefix);
+                argValues.put("RUN_PREFIX",prefix+"_");
                 i++;
             }
             if(args[i].equals("-t")){
@@ -69,10 +60,6 @@ public class ArgsHandler{
             }
             if(args[i].equals("-bt")){
                 argValues.put("BINARY_TIMEOUT_TIME_MINUTES",Integer.parseInt(args[i+1]));
-                i++;
-            }
-            if(args[i].equals("-root_projects")){
-                argValues.put("ROOT_PROJECTS_PATH",args[i+1]);
                 i++;
             }
             if(args[i].equals("-check_d")){
