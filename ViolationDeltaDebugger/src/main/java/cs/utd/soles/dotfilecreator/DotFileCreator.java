@@ -131,9 +131,10 @@ public class DotFileCreator {
         int cutoff=split.length;
         if(split[cutoff-1].contains(".java"))
             cutoff=cutoff-1;
-        for(int j=i;j<cutoff;j++){
+        bestGuess+=split[i];
+        /*for(int j=i;j<cutoff;j++){
             bestGuess+=split[j]+File.separator;
-        }
+        }*/
 
         System.out.print("my guess: " + bestGuess);
 
