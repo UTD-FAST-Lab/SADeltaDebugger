@@ -18,6 +18,7 @@ public class TestScriptRunner {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        System.out.println("Output of test script was " + testThread.returnOutput());
         System.out.println("Exit code of running test script was " + testThread.process.exitValue());
         return testThread.process.exitValue()== 0;
     }
