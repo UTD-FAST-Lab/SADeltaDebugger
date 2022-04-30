@@ -2,6 +2,7 @@ package cs.utd.soles.determinism;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.Node;
+import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
 
 import java.io.File;
@@ -14,17 +15,17 @@ import java.util.Scanner;
 
 public class CheckDeterminism {
 
-    public static boolean checkOrCreate(SetupClass programinfo, Node changedNode, List<Node> removedNodes, String changeNum){
+    public static boolean checkOrCreate(SetupClass programinfo, ArgsHandler ar, Node changedNode, List<Node> removedNodes, String changeNum){
 
         String uniqueNameString = programinfo.getThisRunName();
 
-        if(programinfo.getArguments().getValueOfArg("NO_OPTIMIZATION").isPresent()){
+        if(ar.noOpt) {
             uniqueNameString=uniqueNameString+"_noopt";
         }
-        if(programinfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").isPresent()){
+        if(ar.noAbstract) {
             uniqueNameString=uniqueNameString+"_nam";
         }
-        if(programinfo.getArguments().getValueOfArg("CLASS_REDUCTION").isPresent()){
+        if(ar.classReduction) {
             uniqueNameString=uniqueNameString+"_binary";
         }
 

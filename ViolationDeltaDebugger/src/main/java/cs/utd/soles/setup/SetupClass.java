@@ -71,14 +71,13 @@ public class SetupClass {
         parserConfig = new ParserConfiguration();
 
     }
-    public boolean doSetup(String[] args) throws IOException {
+    public boolean doSetup(ArgsHandler ar) throws IOException {
 
         //positionals
         rootProjectDirs = new ArrayList<>();
-        arguments = handleArgs(args);
         javaParseInst = new JavaParser(parserConfig);
 
-        thisRunName=arguments.getValueOfArg("RUN_PREFIX").get()+this.rootProjectDirs.get(0).getAbsolutePath().replace(File.separator,"-");
+        thisRunName=ar.runPrefix+this.rootProjectDirs.get(0).getAbsolutePath().replace(File.separator,"-");
         return true;
     }
 
@@ -95,12 +94,6 @@ public class SetupClass {
     public void setBuildScriptFile(File buildSFile){
         this.buildScriptFile=buildSFile;
     }
-
-    private ArgsHandler handleArgs(String[] args) {
-
-        return new ArgsHandler(args,this);
-    }
-
 
     public ArgsHandler getArguments() {
         return arguments;

@@ -12,6 +12,7 @@ import com.github.javaparser.ast.stmt.Statement;
 import cs.utd.soles.buildphase.BuildScriptRunner;
 import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.determinism.CheckDeterminism;
+import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.testphase.TestScriptRunner;
 import org.javatuples.Pair;
@@ -25,11 +26,11 @@ public class HDDReduction implements Reduction{
 
     long timeoutTime;
     SetupClass programInfo;
-    boolean checkDeterminism;
-    public HDDReduction(SetupClass programInfo, long timeoutTime){
+    ArgsHandler argsHandler;
+    public HDDReduction(SetupClass programInfo, ArgsHandler ar, long timeoutTime){
         this.programInfo=programInfo;
+        this.argsHandler = ar;
         this.timeoutTime=timeoutTime+System.currentTimeMillis();
-        checkDeterminism = programInfo.getArguments().getValueOfArg("CHECK_DETERMINISM").isPresent()? (boolean)programInfo.getArguments().getValueOfArg("CHECK_DETERMINISM").get():false;
     }
 
     @Override
@@ -215,8 +216,8 @@ public class HDDReduction implements Reduction{
                     i=copiedList.size()/2;
 
                     //TODO:: checkdeterminism fix it please
-                    if(checkDeterminism)
-                        if(!CheckDeterminism.checkOrCreate(programInfo,currentNode, alterableRemoves,"HDD-"+programInfo.getPerfTracker().getCountForCount("ast_changes"))){
+                    if(this.argsHandler.checkDeterminism)
+                        if(!CheckDeterminism.checkOrCreate(programInfo, argsHandler, currentNode, alterableRemoves,"HDD-"+programInfo.getPerfTracker().getCountForCount("ast_changes"))){
                             //it wasnt true idk, say it was bad or something. bad boy code! work and you will receive cheez its
                             System.out.println("Idk how this happened");
                             System.out.println(currentNode);

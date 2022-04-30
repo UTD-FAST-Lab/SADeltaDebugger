@@ -1,6 +1,9 @@
 package cs.utd.soles.setup;
 
 
+import picocli.CommandLine;
+
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,74 +11,56 @@ import java.util.Optional;
 
 public class ArgsHandler{
 
-    HashMap<String, Object> argValues=new HashMap<>();
-    public ArgsHandler(String[] args, SetupClass thing){
-        argValues.put("RUN_PREFIX","");
-        for(int i=0;i<args.length;i++) {
-            if(args[i].equals("-src")){
-                i++;
-                while(!args[i+1].matches("-.+")){
-                    thing.addSrcDir(Paths.get(args[i]).toFile());
-                    i++;
-                }
-                thing.addSrcDir(Paths.get(args[i]).toFile());
-            }
-            if(args[i].equals("-apk")){
-                thing.setApkFile(Paths.get(args[i+1]).toFile());
-                i++;
-            }
+    @CommandLine.Option(names = "--runPrefix", description="The prefix to append to run artifacts.")
+    public String runPrefix;
 
-            if(args[i].equals("-vs")){
-                thing.setTestScriptFile(Paths.get(args[i+1]).toFile());
-                i++;
-            }
-            if(args[i].equals("-bs")){
-                thing.setBuildScriptFile(Paths.get(args[i+1]).toFile());
-                i++;
-            }
-            if (args[i].equals("-l")) {
-                argValues.put("LOG",true);
-            }
-            if(args[i].equals("-c")){
-                argValues.put("CLASS_REDUCTION",true);
-            }
-            if(args[i].equals("-m")){
-                argValues.put("METHOD_REDUCTION",true);
-            }
-            if(args[i].equals("-hdd")){
-                argValues.put("REGULAR_REDUCTION",true);
-            }
-            if(args[i].equals("-no_opt")){
-                argValues.put("NO_OPTIMIZATION",true);
-            }
-            if(args[i].equals("-p")){
-                String prefix=args[i+1];
-                prefix = prefix.replace("/","-");
-                argValues.put("RUN_PREFIX",prefix+"_");
-                i++;
-            }
-            if(args[i].equals("-t")){
-                argValues.put("TIMEOUT_TIME_MINUTES",Integer.parseInt(args[i+1]));
-                i++;
-            }
-            if(args[i].equals("-bt")){
-                argValues.put("BINARY_TIMEOUT_TIME_MINUTES",Integer.parseInt(args[i+1]));
-                i++;
-            }
-            if(args[i].equals("-check_d")){
-                argValues.put("CHECK_DETERMINISM",true);
-            }
-            //add other args here if we want em
-        }
-    }
-    public Optional<Object> getValueOfArg(String arg){
-        return Optional.ofNullable(argValues.get(arg));
-    }
-    public String printArgValues(){
-        String returnString="";
-        for(Map.Entry<String, Object> e: argValues.entrySet()){
-            returnString+=e.getKey().toString()+": "+e.getValue().toString()+"\n";
-        }
-        return returnString;
-    }
+    @CommandLine.Option(names="--target", description="The compiled target program to run on.", required = true)
+    public Path apk;
+
+    @CommandLine.Option(names="--vs", description="The violation script. " +
+            "Expects a return code of 0 if the violation was reproduced, and takes the compiled program (e.g., JAR" +
+            " or APK) as a parameter.", required = true)
+    public Path vs;
+
+    @CommandLine.Option(names="--bs", description="The build script. The delta debugger expects this script to " +
+            "return 0 if the build was successful, and to output the compiled program in the same place as the" +
+            " --target parameter.", required = true)
+    public Path bs;
+
+    @CommandLine.Option(names="--log", description="Enable logging.")
+    public boolean log;
+
+    @CommandLine.Option(names="--class-reduction", description="Enable class-based reduction, " +
+            "consistent with Kalhauge and Palsberg's approach.")
+    public boolean classReduction;
+
+    @CommandLine.Option(names="--method-reduction", description = "Enable method based reduction [EXPERIMENTAL]")
+    public boolean methodReduction;
+
+    @CommandLine.Option(names="--no_abstract", description="Do we still use this option?")
+    public boolean noAbstract;
+
+    @CommandLine.Option(names="--help", usageHelp = true)
+    public boolean help;
+
+    @CommandLine.Option(names="--hdd", description="Enable hierarchical delta debugging.")
+    public boolean hdd;
+
+    @CommandLine.Option(names="--no_opt", description="Disable optimization (Dakota, what is this?)")
+    public
+    boolean noOpt;
+
+    @CommandLine.Option(names="--timeout", description="The timeout for the whole delta debugging process in minutes.")
+    public
+    Optional<Integer> timeoutMinutes;
+
+    @CommandLine.Option(names="--binary-timeout", description="The timeout of the hierarchical " +
+            "delta debugging algorithm.")
+    public
+    Optional<Integer> binaryTimeoutMinutes;
+
+    @CommandLine.Option(names="--check-determinism", description = "[DEPRECATED] Check determinism of the " +
+            "analysis result.")
+    public
+    boolean checkDeterminism;
 }

@@ -6,10 +6,13 @@ import cs.utd.soles.buildphase.BuildScriptRunner;
 import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
+import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.testphase.TestScriptRunner;
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
+import picocli.CommandLine;
+
 import java.io.*;
 import java.util.*;
 
@@ -19,6 +22,12 @@ public class Runner {
     private static final long M_TO_MILLIS=60000;
 
     public static void main(String[] args){
+        ArgsHandler ar = new ArgsHandler();
+        new CommandLine(ar).parseArgs(args);
+        if (ar.help) {
+            CommandLine.usage(new ArgsHandler(), System.out);
+            System.exit(1);
+        }
         SetupClass programInfo = new SetupClass();
 
         setupVariablesToTrack(programInfo);
@@ -29,13 +38,13 @@ public class Runner {
 
         try{
             programInfo.getPerfTracker().startTimer("setup_timer");
-            programInfo.doSetup(args);
+            programInfo.doSetup(ar);
 
             originalCuList=createCuList(programInfo.getRootProjectDirs(), programInfo.getJavaParseInst());
 
             //trackFilesChanges(programInfo,originalCuList);
 
-            System.out.println(programInfo.getArguments().printArgValues());
+            //System.out.println(programInfo.getArguments().printArgValues());
 
 
             if(!BuildScriptRunner.runBuildScript(programInfo)){
@@ -82,15 +91,14 @@ public class Runner {
         bestCuList = new ArrayList<>(originalCuList);
 
         int btimeoutTimeMinutes = 120;
-        Optional<Object> arg = programInfo.getArguments().getValueOfArg("BINARY_TIMEOUT_TIME_MINUTES");
+        Optional<Integer> arg = ar.binaryTimeoutMinutes;
         if(arg.isPresent()) {
-            btimeoutTimeMinutes= (int) arg.get();
+            btimeoutTimeMinutes= arg.get();
+
         }
         long beforetime = System.currentTimeMillis();
         BinaryReduction binaryReduction = new BinaryReduction(programInfo,originalCuList, btimeoutTimeMinutes*M_TO_MILLIS);
-        arg = programInfo.getArguments().getValueOfArg("CLASS_REDUCTION");
-        if(arg.isPresent())
-            if(((boolean)arg.get())) {
+            if(ar.classReduction) {
                 ArrayList<Object> requirements = new ArrayList<>();
                 requirements.add(originalCuList);
                 requirements.add(bestCuList);
@@ -100,19 +108,16 @@ public class Runner {
         long millis_time_saved = Math.max(beforetime+(btimeoutTimeMinutes*M_TO_MILLIS)-System.currentTimeMillis(),0);
 
         int timeoutTimeMinutes = 120;
-        arg = programInfo.getArguments().getValueOfArg("TIMEOUT_TIME_MINUTES");
-        if(arg.isPresent()) {
-            timeoutTimeMinutes= (int) arg.get();
+        if(ar.timeoutMinutes.isPresent()) {
+            timeoutTimeMinutes= arg.get();
 
         }
-        HDDReduction hddReduction = new HDDReduction(programInfo, (timeoutTimeMinutes*M_TO_MILLIS)+millis_time_saved);
-        arg = programInfo.getArguments().getValueOfArg("REGULAR_REDUCTION");
-        if(arg.isPresent())
-            if(((boolean)arg.get())) {
+        HDDReduction hddReduction = new HDDReduction(programInfo, ar, (timeoutTimeMinutes*M_TO_MILLIS)+millis_time_saved);
+        if(ar.hdd) {
                 ArrayList<Object> requirements = new ArrayList<>();
                 requirements.add(bestCuList);
                 hddReduction.reduce(requirements);
-            }
+        }
         saveBestAPK(programInfo);
 
         //doMethodReduction();
