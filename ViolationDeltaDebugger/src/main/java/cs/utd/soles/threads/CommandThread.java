@@ -20,7 +20,7 @@ public class CommandThread extends Thread{
     @Override
     public void run() {
         try {
-            output = ReadProcess.readProcess(command);
+            output = ReadProcess.readProcess(command.split(" "));
             this.process = ReadProcess.process;
         }catch(Exception e){
             e.printStackTrace();

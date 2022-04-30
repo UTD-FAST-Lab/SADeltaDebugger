@@ -8,50 +8,28 @@ import java.util.List;
 public class ReadProcess {
 
     public static Process process;
+
     public static String readProcess(String[] commands) throws IOException, InterruptedException {
 
-        Process p = Runtime.getRuntime().exec(commands);
-
-
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        BufferedReader er = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        String output = "";
-        String line = null;
-
-        while((line=r.readLine())!=null){
-            output+=line+"\n";
-        }
-        output+="\n\n";
-        while((line=er.readLine())!=null){
-            output+=line+"\n";
-        }
-        p.waitFor();
-       // System.out.println("thread output: "+output);
-        ReadProcess.process = p;
-        return output;
-    }
-
-    public static String readProcess(String commands) throws IOException, InterruptedException {
-
-        Process p = Runtime.getRuntime().exec(commands);
-
-
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        BufferedReader er = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        String output = "";
-        String line = null;
-
-        while((line=r.readLine())!=null){
-            output+=line+"\n";
-        }
-        output+="\n\n";
-        while((line=er.readLine())!=null){
-            output+=line+"\n";
-        }
+        ProcessBuilder builder = new ProcessBuilder(commands);
+        builder.redirectErrorStream(true);
+        System.out.println("Starting process");
+        Process p = builder.start();
+        new Thread(() -> {
+            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = null;
+            try {
+                while ((line = input.readLine()) != null) {
+                    System.out.println(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
         p.waitFor();
         //System.out.println("thread output: "+output);
         ReadProcess.process = p;
-        return output;
+        return "";
     }
 
 }
