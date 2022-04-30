@@ -5,8 +5,7 @@ import com.github.javaparser.ParserConfiguration;
 import cs.utd.soles.PerfTracker;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.List;
 
 public class SetupClass {
 
@@ -32,7 +31,7 @@ public class SetupClass {
     }
 
 
-    public ArrayList<File> getRootProjectDirs() {
+    public List<File> getRootProjectDirs() {
         return rootProjectDirs;
     }
 
@@ -48,7 +47,7 @@ public class SetupClass {
         return apkFile;
     }
 
-    ArrayList<File> rootProjectDirs;
+    List<File> rootProjectDirs;
     boolean violationOrNot;
     ArgsHandler arguments;
     String thisRunName;
@@ -74,9 +73,12 @@ public class SetupClass {
     public boolean doSetup(ArgsHandler ar) throws IOException {
 
         //positionals
-        rootProjectDirs = new ArrayList<>();
+        rootProjectDirs = ar.sources;
         javaParseInst = new JavaParser(parserConfig);
 
+        setApkFile(ar.target);
+        setTestScriptFile(ar.vs);
+        setBuildScriptFile(ar.bs);
         thisRunName=ar.runPrefix+this.rootProjectDirs.get(0).getAbsolutePath().replace(File.separator,"-");
         return true;
     }

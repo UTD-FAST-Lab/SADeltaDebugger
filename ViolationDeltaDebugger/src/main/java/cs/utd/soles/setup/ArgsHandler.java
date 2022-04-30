@@ -3,9 +3,11 @@ package cs.utd.soles.setup;
 
 import picocli.CommandLine;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -14,18 +16,21 @@ public class ArgsHandler{
     @CommandLine.Option(names = "--runPrefix", description="The prefix to append to run artifacts.")
     public String runPrefix;
 
+    @CommandLine.Option(names="--sources", description = "Directory/ies where source code is.", required = true)
+    public List<File> sources;
+
     @CommandLine.Option(names="--target", description="The compiled target program to run on.", required = true)
-    public Path apk;
+    public File target;
 
     @CommandLine.Option(names="--vs", description="The violation script. " +
             "Expects a return code of 0 if the violation was reproduced, and takes the compiled program (e.g., JAR" +
             " or APK) as a parameter.", required = true)
-    public Path vs;
+    public File vs;
 
     @CommandLine.Option(names="--bs", description="The build script. The delta debugger expects this script to " +
             "return 0 if the build was successful, and to output the compiled program in the same place as the" +
             " --target parameter.", required = true)
-    public Path bs;
+    public File bs;
 
     @CommandLine.Option(names="--log", description="Enable logging.")
     public boolean log;

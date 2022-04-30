@@ -109,7 +109,7 @@ public class Runner {
 
         int timeoutTimeMinutes = 120;
         if(ar.timeoutMinutes.isPresent()) {
-            timeoutTimeMinutes= arg.get();
+            timeoutTimeMinutes= ar.timeoutMinutes.get();
 
         }
         HDDReduction hddReduction = new HDDReduction(programInfo, ar, (timeoutTimeMinutes*M_TO_MILLIS)+millis_time_saved);
@@ -366,7 +366,7 @@ public class Runner {
             return null;
     }*/
 
-    private static ArrayList<Pair<File,CompilationUnit>> createCuList(ArrayList<File> javadirpaths, JavaParser parser) throws IOException {
+    private static ArrayList<Pair<File,CompilationUnit>> createCuList(List<File> javadirpaths, JavaParser parser) throws IOException {
 
         ArrayList<Pair<File,CompilationUnit>> returnList = new ArrayList<>();
 
