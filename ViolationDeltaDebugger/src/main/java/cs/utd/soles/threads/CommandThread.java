@@ -20,8 +20,9 @@ public class CommandThread extends Thread{
     @Override
     public void run() {
         try {
-            output = ReadProcess.readProcess(command);
-            this.process = ReadProcess.process;
+            ReadProcess rp = new ReadProcess();
+            output = rp.readProcess(command);
+            this.process = rp.process;
         }catch(Exception e){
             e.printStackTrace();
         }

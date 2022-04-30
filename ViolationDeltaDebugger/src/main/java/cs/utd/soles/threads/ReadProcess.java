@@ -7,29 +7,44 @@ import java.util.List;
 
 public class ReadProcess {
 
-    public static Process process;
+    public class ThreadWatcher extends Thread {
 
-    public static String readProcess(String[] commands) throws IOException, InterruptedException {
+        private String output;
+        private Process process;
+        public String getOutput() {
+            return output;
+        }
+
+        public ThreadWatcher(Process p) {
+            this.output = "";
+            this.process = p;
+        }
+
+        @Override
+        public void run() {
+        }
+    }
+    public Process process;
+
+    public String readProcess(String[] commands) throws IOException, InterruptedException {
 
         ProcessBuilder builder = new ProcessBuilder(commands);
         builder.redirectErrorStream(true);
-        System.out.println("Starting process for command " + commands);
-        Process p = builder.start();
-        new Thread(() -> {
-            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line = null;
-            try {
-                while ((line = input.readLine()) != null) {
-                    System.out.println(line);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        System.out.println("Starting process for command " + commands.toString());
+        String output = "";
+        this.process = builder.start();
+        BufferedReader input = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
+        String line = null;
+        try {
+            while ((line = input.readLine()) != null) {
+                System.out.println(line);
+                output += line;
             }
-        }).start();
-        p.waitFor();
-        //System.out.println("thread output: "+output);
-        ReadProcess.process = p;
-        return "";
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.process.waitFor();
+        return output;
     }
 
 }
