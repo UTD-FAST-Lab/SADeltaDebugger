@@ -4,9 +4,9 @@ package cs.utd.soles.threads;
 
 public class CommandThread extends Thread{
 
-    String command="";
+    String[] command = new String[] {};
 
-    public CommandThread(String command){
+    public CommandThread(String[] command){
         this.command=command;
     }
 
@@ -20,7 +20,7 @@ public class CommandThread extends Thread{
     @Override
     public void run() {
         try {
-            output = ReadProcess.readProcess(command.split(" "));
+            output = ReadProcess.readProcess(command);
             this.process = ReadProcess.process;
         }catch(Exception e){
             e.printStackTrace();

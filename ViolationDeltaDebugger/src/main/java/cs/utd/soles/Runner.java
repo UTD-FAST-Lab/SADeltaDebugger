@@ -2,13 +2,11 @@ package cs.utd.soles;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import cs.utd.soles.buildphase.BuildScriptRunner;
 import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
 import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
-import cs.utd.soles.testphase.TestScriptRunner;
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
 import picocli.CommandLine;
@@ -47,8 +45,8 @@ public class Runner {
             //System.out.println(programInfo.getArguments().printArgValues());
 
 
-            if(!BuildScriptRunner.runBuildScript(programInfo)){
-                System.out.println("Apk creation failed at start, exiting");
+            if(!ScriptRunner.runBuildScript(programInfo)) {
+                System.out.println("Failed to build program.");
                 System.exit(-1);
             }
             //System.out.print("done check");
@@ -70,7 +68,7 @@ public class Runner {
 
         //check if we can reproduce violation
 
-        if(!TestScriptRunner.runTestScript(programInfo)) {
+        if(!ScriptRunner.runTestScript(programInfo)) {
             System.out.println("Violation not reproduced");
             System.exit(-1);
         }

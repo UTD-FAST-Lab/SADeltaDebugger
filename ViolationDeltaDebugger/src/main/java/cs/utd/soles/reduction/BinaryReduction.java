@@ -3,13 +3,12 @@ package cs.utd.soles.reduction;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.PackageDeclaration;
-import cs.utd.soles.buildphase.BuildScriptRunner;
+import cs.utd.soles.ScriptRunner;
 import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.classgraph.DependencyGraph;
 import cs.utd.soles.dotfilecreator.DotFileCreator;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.classgraph.ClassNode;
-import cs.utd.soles.testphase.TestScriptRunner;
 import org.javatuples.Pair;
 
 import java.io.File;
@@ -44,12 +43,12 @@ public class BinaryReduction implements Reduction{
 
     @Override
     public boolean testBuild() {
-        return BuildScriptRunner.runBuildScript(programInfo);
+        return ScriptRunner.runBuildScript(programInfo);
     }
 
     @Override
     public boolean testViolation() {
-        return TestScriptRunner.runTestScript(programInfo);
+        return ScriptRunner.runTestScript(programInfo);
     }
 
     @Override

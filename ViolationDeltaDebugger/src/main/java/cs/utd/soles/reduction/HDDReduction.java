@@ -9,12 +9,11 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
-import cs.utd.soles.buildphase.BuildScriptRunner;
+import cs.utd.soles.ScriptRunner;
 import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.determinism.CheckDeterminism;
 import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
-import cs.utd.soles.testphase.TestScriptRunner;
 import org.javatuples.Pair;
 import java.io.File;
 import java.io.IOException;
@@ -41,12 +40,12 @@ public class HDDReduction implements Reduction{
 
     @Override
     public boolean testBuild() {
-        return BuildScriptRunner.runBuildScript(programInfo);
+        return ScriptRunner.runBuildScript(programInfo);
     }
 
     @Override
     public boolean testViolation() {
-        return TestScriptRunner.runTestScript(programInfo);
+        return ScriptRunner.runTestScript(programInfo);
     }
 
     @Override

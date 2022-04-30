@@ -13,7 +13,7 @@ public class ReadProcess {
 
         ProcessBuilder builder = new ProcessBuilder(commands);
         builder.redirectErrorStream(true);
-        System.out.println("Starting process");
+        System.out.println("Starting process for command " + commands);
         Process p = builder.start();
         new Thread(() -> {
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
