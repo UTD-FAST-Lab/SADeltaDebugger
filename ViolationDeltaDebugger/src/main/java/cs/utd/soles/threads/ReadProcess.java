@@ -38,7 +38,7 @@ public class ReadProcess {
         try {
             while ((line = input.readLine()) != null) {
                 System.out.println(line);
-                output += line;
+                output += line + "\n";
             }
         } catch (IOException e) {
             e.printStackTrace();
