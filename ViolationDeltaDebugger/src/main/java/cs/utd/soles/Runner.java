@@ -51,11 +51,13 @@ public class Runner {
             }
             //System.out.print("done check");
             saveBestAPK(programInfo);
-            programInfo.getPerfTracker().setCount("start_line_count", 0);
 
+            long lineCount = 0;
             for(File x: programInfo.getRootProjectDirs()) {
-                LineCounter.countLinesDir(x.getAbsolutePath());
+                lineCount += LineCounter.countLinesDir(x.getAbsolutePath());
             }
+            programInfo.getPerfTracker().setCount("start_line_count", (int) lineCount);
+
             programInfo.getPerfTracker().stopTimer("setup_timer");
             //check if we need to do a minimization
             /*if(!programInfo.isNeedsToBeMinimized()){
