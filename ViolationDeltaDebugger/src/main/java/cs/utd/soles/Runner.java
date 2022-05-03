@@ -173,8 +173,7 @@ public class Runner {
             bigString+="\nTimers: \n";
             bigString+=pt.printTimerTimes();
 
-            String filePathName = "debugger/"+programInfo.getThisRunName()+"_time.txt";
-            File file = new File(filePathName);
+            File file = ar.logFile;
             file.mkdirs();
             if (file.exists())
                 file.delete();
@@ -182,6 +181,7 @@ public class Runner {
             FileWriter fw = new FileWriter(file);
             fw.write(bigString);
             fw.flush();
+            fw.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

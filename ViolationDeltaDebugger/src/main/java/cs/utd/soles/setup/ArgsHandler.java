@@ -68,4 +68,7 @@ public class ArgsHandler{
             "analysis result.")
     public
     boolean checkDeterminism;
+
+    @CommandLine.Option(names="--logs", description = "Where to write log.", required = true)
+    public File logFile;
 }
