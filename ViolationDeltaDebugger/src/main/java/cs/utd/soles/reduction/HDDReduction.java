@@ -4,9 +4,6 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import cs.utd.soles.ScriptRunner;
@@ -18,7 +15,6 @@ import org.javatuples.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class HDDReduction implements Reduction{
@@ -39,13 +35,25 @@ public class HDDReduction implements Reduction{
     }
 
     @Override
-    public boolean testBuild() {
-        return ScriptRunner.runBuildScript(programInfo);
+    public int testBuild() {
+        try {
+            return ScriptRunner.runBuildScript(programInfo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } return -1;
     }
 
     @Override
-    public boolean testViolation() {
-        return ScriptRunner.runTestScript(programInfo);
+    public int testViolation() {
+        try {
+            return ScriptRunner.runTestScript(programInfo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } return -1;
     }
 
     @Override
@@ -58,7 +66,7 @@ public class HDDReduction implements Reduction{
         }
 
         programInfo.getPerfTracker().startTimer("compile_timer");
-        if(!testBuild()) {
+        if(testBuild() != 0) {
             programInfo.getPerfTracker().stopTimer("compile_timer");
             programInfo.getPerfTracker().addTime("time_bad_compile_runs_hdd",programInfo.getPerfTracker().getTimeForTimer("compile_timer"));
             programInfo.getPerfTracker().resetTimer("compile_timer");
@@ -72,7 +80,7 @@ public class HDDReduction implements Reduction{
         programInfo.getPerfTracker().resetTimer("compile_timer");
 
         programInfo.getPerfTracker().startTimer("recreate_timer");
-        if(!testViolation()) {
+        if(testViolation() != 0) {
             programInfo.getPerfTracker().addCount("bad_recreate_runs_hdd", 1);
             programInfo.getPerfTracker().stopTimer("recreate_timer");
             programInfo.getPerfTracker().addTime("time_bad_recreate_runs_hdd",

@@ -155,7 +155,9 @@ public class DotFileCreator {
             // ./d2j-dex2jar.sh -f  "path to apk" -o "outputfile.jar"
             String[] command = new String[] {System.getenv().get("DELTA_DEBUGGER_HOME")+"/dex-tools-2.1/d2j-dex2jar.sh",
                     "-f", apkFile.getAbsolutePath(), "-o", outputFilePath};
-            CommandThread dex2jarCommand = new CommandThread(command);
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.redirectErrorStream(true);
+            CommandThread dex2jarCommand = new CommandThread(pb);
             System.out.println(command);
             dex2jarCommand.start();
             try {

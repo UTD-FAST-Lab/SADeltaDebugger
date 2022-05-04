@@ -5,9 +5,10 @@ package cs.utd.soles.threads;
 public class CommandThread extends Thread{
 
     String[] command = new String[] {};
+    ProcessBuilder processBuilder;
 
-    public CommandThread(String[] command){
-        this.command=command;
+    public CommandThread(ProcessBuilder pb){
+        this.processBuilder = pb;
     }
 
     public String returnOutput(){

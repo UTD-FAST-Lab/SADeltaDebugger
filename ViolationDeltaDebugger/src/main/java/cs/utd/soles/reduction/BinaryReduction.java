@@ -42,13 +42,25 @@ public class BinaryReduction implements Reduction{
     }
 
     @Override
-    public boolean testBuild() {
-        return ScriptRunner.runBuildScript(programInfo);
+    public int testBuild() {
+        try {
+            return ScriptRunner.runBuildScript(programInfo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } return -1;
     }
 
     @Override
-    public boolean testViolation() {
-        return ScriptRunner.runTestScript(programInfo);
+    public int testViolation() {
+        try {
+            return ScriptRunner.runTestScript(programInfo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } return -1;
     }
 
     @Override
@@ -62,7 +74,7 @@ public class BinaryReduction implements Reduction{
         //always the same after writing
         //logging stuff needs to be made
         programInfo.getPerfTracker().startTimer("compile_timer");
-        if(!testBuild()) {
+        if(testBuild() != 0) {
             programInfo.getPerfTracker().stopTimer("compile_timer");
             programInfo.getPerfTracker().addTime("time_bad_compile_runs_binary",
                     programInfo.getPerfTracker().getTimeForTimer("compile_timer"));
@@ -78,7 +90,7 @@ public class BinaryReduction implements Reduction{
         programInfo.getPerfTracker().resetTimer("compile_timer");
 
         programInfo.getPerfTracker().startTimer("recreate_timer");
-        if(!testViolation()) {
+        if(testViolation() != 0) {
             programInfo.getPerfTracker().addCount("bad_recreate_runs_binary", 1);
             programInfo.getPerfTracker().stopTimer("recreate_timer");
             programInfo.getPerfTracker().addTime("time_bad_recreate_runs_binary",

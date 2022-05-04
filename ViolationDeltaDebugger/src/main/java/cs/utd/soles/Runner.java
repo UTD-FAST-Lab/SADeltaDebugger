@@ -45,7 +45,7 @@ public class Runner {
             //System.out.println(programInfo.getArguments().printArgValues());
 
 
-            if(!ScriptRunner.runBuildScript(programInfo)) {
+            if(ScriptRunner.runBuildScript(programInfo) != 0) {
                 System.out.println("Failed to build program.");
                 System.exit(-1);
             }
@@ -70,9 +70,15 @@ public class Runner {
 
         //check if we can reproduce violation
 
-        if(!ScriptRunner.runTestScript(programInfo)) {
-            System.out.println("Violation not reproduced");
-            System.exit(-1);
+        try {
+            if(ScriptRunner.runTestScript(programInfo) != 0) {
+                System.out.println("Violation not reproduced");
+                System.exit(-1);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         /*try{
             AqlRunner aqlRunner = new AqlRunner(programInfo.getPerfTracker());

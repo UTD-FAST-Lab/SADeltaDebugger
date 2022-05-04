@@ -10,8 +10,8 @@ public interface Reduction {
 
     void reduce(ArrayList<Object> requireds);
 
-    boolean testBuild();
-    boolean testViolation();
+    int testBuild();
+    int testViolation();
 
     boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList,int unitP,CompilationUnit cu);
 }
