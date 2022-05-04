@@ -1,6 +1,7 @@
 package cs.utd.soles;
 
 import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.reduction.BinaryReduction;
@@ -9,13 +10,17 @@ import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.LoggingPermission;
 
 public class Runner {
 
+    private static Logger logger = LoggerFactory.getLogger(Runner.class);
     //1 minute is this long in millis
     private static final long M_TO_MILLIS=60000;
 
@@ -50,7 +55,7 @@ public class Runner {
                 System.exit(-1);
             }
             //System.out.print("done check");
-            saveBestAPK(programInfo);
+            //saveBestAPK(programInfo);
 
             long lineCount = 0;
             for(File x: programInfo.getRootProjectDirs()) {
@@ -124,7 +129,7 @@ public class Runner {
                 requirements.add(bestCuList);
                 hddReduction.reduce(requirements);
         }
-        saveBestAPK(programInfo);
+        //saveBestAPK(programInfo);
 
         //doMethodReduction();
 
@@ -158,7 +163,7 @@ public class Runner {
         try {
             ProgramWriter.saveCompilationUnits(bestCuList,bestCuList.size()+1,null);
             //final apk for program
-            saveBestAPK(programInfo);
+            //saveBestAPK(programInfo);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -390,9 +395,13 @@ public class Runner {
                 //don't add the unmodified source files cause they will just duplicate endlessly
                 if (!x.getAbsolutePath().contains("unmodified_src")) {
                     i++;
-                    Pair<File, CompilationUnit> b = new Pair(x, parser.parse(x).getResult().get());
-                    returnList.add(b);
-
+                    ParseResult<CompilationUnit> parseResult = parser.parse(x);
+                    if (parseResult.getResult().isPresent()) {
+                        Pair<File, CompilationUnit> b = new Pair(x, parseResult.getResult().get());
+                        returnList.add(b);
+                    } else {
+                        logger.warn(String.format("Parsing failed for file %s", x.toString()));;
+                    }
                 }
             }
         }
