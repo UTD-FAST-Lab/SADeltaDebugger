@@ -15,11 +15,15 @@ import java.util.Set;
 public class ScriptRunner {
 
     public static int runBuildScript(SetupClass sc) throws IOException, InterruptedException {
-        return runScript(sc.getBuildScriptFile());
+        int exitCode = runScript(sc.getBuildScriptFile());
+        System.out.println(String.format("Output of running build script was %d", exitCode));
+        return exitCode;
     }
 
     public static int runTestScript(SetupClass sc) throws IOException, InterruptedException {
-        return runScript(sc.getTestScriptFile(), new String[] {sc.getAPKFile().toString()});
+        int exitCode = runScript(sc.getTestScriptFile(), new String[] {sc.getAPKFile().toString()});
+        System.out.println(String.format("Output of running violation script was %d", exitCode));
+        return exitCode;
     }
 
     public static int runScript(File scriptLocation) throws IOException, InterruptedException {
@@ -54,8 +58,8 @@ public class ScriptRunner {
             e.printStackTrace();
         }
         process.waitFor();
-        System.err.println("Output of script was " + output);
-        System.err.println("Exit code of running build script was " + process.exitValue());
+        //System.err.println("Output of script was " + output);
+        //System.err.println("Exit code of running build script was " + process.exitValue());
         return process.exitValue();
     }
 }
