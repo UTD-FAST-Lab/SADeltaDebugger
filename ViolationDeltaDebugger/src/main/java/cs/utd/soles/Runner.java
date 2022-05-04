@@ -402,19 +402,22 @@ public class Runner {
     //static String APKReductionPath="/home/dakota/AndroidTA/AndroidTAEnvironment/APKReductionDir";
 
     //this method updates the best apk for this run or creates it if it needs to, by the end of the run the best apk should be saved
-    public static void saveBestAPK(SetupClass programInfo){
-
-        try {
-            File f= new File("debugger/minimized_apks/" +programInfo.getThisRunName()+".apk");
-            f.mkdirs();
-            if(f.exists()){
-                f.delete();
-            }
-            f.createNewFile();
-            FileUtils.copyFile(programInfo.getAPKFile(), f);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void saveBestAPK(SetupClass programInfo) {
+        return;
+        // Since we are now editing in-place, the best program should just be
+        //  the existing one.
+//
+//        try {
+//            File f= new File("debugger/minimized_apks/" +programInfo.getThisRunName()+".apk");
+//            f.mkdirs();
+//            if(f.exists()){
+//                f.delete();
+//            }
+//            f.createNewFile();
+//            FileUtils.copyFile(programInfo.getAPKFile(), f);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
     }
-
 }
