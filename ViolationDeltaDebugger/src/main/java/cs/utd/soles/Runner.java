@@ -123,7 +123,7 @@ public class Runner {
             timeoutTimeMinutes= ar.timeoutMinutes.get();
 
         }
-        HDDReduction hddReduction = new HDDReduction(programInfo, ar, (timeoutTimeMinutes*M_TO_MILLIS)+millis_time_saved);
+        HDDReduction hddReduction = new HDDReduction(programInfo, ar, timeoutTimeMinutes);
         if(ar.hdd) {
                 ArrayList<Object> requirements = new ArrayList<>();
                 requirements.add(bestCuList);
