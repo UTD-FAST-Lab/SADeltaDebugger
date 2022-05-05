@@ -51,7 +51,7 @@ public class ScriptRunner {
         String line = null;
         try {
             while ((line = input.readLine()) != null) {
-                System.out.println(line);
+                //System.out.println(line);
                 output += line + "\n";
             }
         } catch (IOException e) {
