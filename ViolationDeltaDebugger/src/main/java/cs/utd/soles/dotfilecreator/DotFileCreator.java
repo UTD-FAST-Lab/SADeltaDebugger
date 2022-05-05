@@ -25,10 +25,10 @@ public class DotFileCreator {
 
         File rootZipDir = turnJarOrApkIntoClassFileDir(programInfo.getAPKFile());
 
-
+        System.out.println("rootZipDir is " + rootZipDir.toString());
         File projectPackageClasses= findProjectClasses(rootZipDir,cus);
 
-        File projectClassesDir = transferClassesToDir(projectPackageClasses,programInfo.getAPKFile());
+        File projectClassesDir = transferClassesToDir(rootZipDir,programInfo.getAPKFile());
 
 
 
