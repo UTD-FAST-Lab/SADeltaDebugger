@@ -58,8 +58,10 @@ public class ScriptRunner {
             e.printStackTrace();
         }
         process.waitFor();
+        lastOutput = output;
         //System.err.println("Output of script was " + output);
         //System.err.println("Exit code of running build script was " + process.exitValue());
         return process.exitValue();
     }
+    public static String lastOutput;
 }

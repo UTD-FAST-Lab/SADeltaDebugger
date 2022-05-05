@@ -1,6 +1,7 @@
 package cs.utd.soles.dotfilecreator;
 
 import com.github.javaparser.ast.CompilationUnit;
+import cs.utd.soles.ScriptRunner;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.threads.CommandThread;
 import net.lingala.zip4j.core.ZipFile;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DotFileCreator {
@@ -153,19 +155,16 @@ public class DotFileCreator {
 
             //dex to jar sh is in AndroidTA_FaultLocalization/resources/delta_debugger/dex-tools-2.1
             // ./d2j-dex2jar.sh -f  "path to apk" -o "outputfile.jar"
-            String[] command = new String[] {System.getenv().get("DELTA_DEBUGGER_HOME")+"/dex-tools-2.1/d2j-dex2jar.sh",
-                    "-f", apkFile.getAbsolutePath(), "-o", outputFilePath};
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true);
-            CommandThread dex2jarCommand = new CommandThread(pb);
-            System.out.println(command);
-            dex2jarCommand.start();
+            String scriptPath = System.getenv().get("DELTA_DEBUGGER_HOME")+"/dex-tools-2.1/d2j-dex2jar.sh";
+            String[] params = new String[] {"-f", apkFile.getAbsolutePath(), "-o", outputFilePath};
             try {
-                dex2jarCommand.join();
+                ScriptRunner.runScript(Paths.get(scriptPath).toFile(), params);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
-            System.out.println(dex2jarCommand.returnOutput());
+            //System.out.println(ScriptRunner.lastOutput);
             jarFile= Paths.get(outputFilePath).toFile();
         }
         File zipFile = new File(jarFile.getAbsolutePath().replace(".jar", ".zip"));
