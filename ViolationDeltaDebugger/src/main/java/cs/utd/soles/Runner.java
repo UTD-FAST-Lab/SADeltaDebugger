@@ -104,9 +104,10 @@ public class Runner {
         int btimeoutTimeMinutes = 120;
         Optional<Integer> arg = ar.binaryTimeoutMinutes;
         if(arg.isPresent()) {
-            btimeoutTimeMinutes= arg.get();
+            btimeoutTimeMinutes = arg.get();
 
         }
+        System.out.println("CU before BR: "+bestCuList);
         long beforetime = System.currentTimeMillis();
         BinaryReduction binaryReduction = new BinaryReduction(programInfo,originalCuList, btimeoutTimeMinutes*M_TO_MILLIS);
             if(ar.classReduction) {
@@ -114,21 +115,30 @@ public class Runner {
                 requirements.add(originalCuList);
                 requirements.add(bestCuList);
                 binaryReduction.reduce(requirements);
+                bestCuList=binaryReduction.privateList();
             }
-
+            else{
+                btimeoutTimeMinutes=0;
+            }
+        System.out.println("CU after BR: "+bestCuList);
         long millis_time_saved = Math.max(beforetime+(btimeoutTimeMinutes*M_TO_MILLIS)-System.currentTimeMillis(),0);
 
+        int minutes_time_saved = (int)(millis_time_saved/M_TO_MILLIS);
         int timeoutTimeMinutes = 120;
         if(ar.timeoutMinutes.isPresent()) {
             timeoutTimeMinutes= ar.timeoutMinutes.get();
 
         }
-        HDDReduction hddReduction = new HDDReduction(programInfo, ar, timeoutTimeMinutes);
+        timeoutTimeMinutes=timeoutTimeMinutes+minutes_time_saved;
+        System.out.println("CU before HDD: "+bestCuList);
+        HDDReduction hddReduction = new HDDReduction(programInfo, ar, timeoutTimeMinutes*M_TO_MILLIS);
         if(ar.hdd) {
                 ArrayList<Object> requirements = new ArrayList<>();
                 requirements.add(bestCuList);
                 hddReduction.reduce(requirements);
+
         }
+        System.out.println("CU after HDD: "+bestCuList);
         //saveBestAPK(programInfo);
 
         //doMethodReduction();
@@ -390,6 +400,7 @@ public class Runner {
 
             String[] extensions = {"java"};
             List<File> allJFiles = ((List<File>) FileUtils.listFiles(f, extensions, true));
+            System.out.println(allJFiles);
             int i = 0;
             for (File x : allJFiles) {
                 //don't add the unmodified source files cause they will just duplicate endlessly

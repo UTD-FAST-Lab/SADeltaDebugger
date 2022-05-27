@@ -20,27 +20,32 @@ public class BinaryReduction implements Reduction{
     SetupClass programInfo;
     HashMap<String, String> classNamesToPaths;
     long timeout_time;
-
+    private ArrayList<Pair<File,CompilationUnit>> bestCuPrivate;
     public BinaryReduction(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> originalUnits, long timeOutTime){
         this.programInfo=programInfo;
         fillNamesToPaths(originalUnits);
         timeout_time = timeOutTime+System.currentTimeMillis();
+        bestCuPrivate=new ArrayList<>();
     }
 
     @Override
     public void reduce(ArrayList<Object> requireds) {
         ArrayList<Pair<File,CompilationUnit>> originalCuList = (ArrayList<Pair<File, CompilationUnit>>) requireds.get(0);
         ArrayList<Pair<File,CompilationUnit>> bestCuList = (ArrayList<Pair<File, CompilationUnit>>) requireds.get(1);
-
+        bestCuPrivate.addAll(bestCuList);
         programInfo.getPerfTracker().startTimer("binary_timer");
 
         DependencyGraph graph = createDependencyNodes(originalCuList);
         ArrayList<HashSet<ClassNode>> closures = graph.getTransitiveClosuresDifferent();
+
+        System.out.println("Closures: "+closures);
         binaryReduction(closures, originalCuList, bestCuList);
 
         programInfo.getPerfTracker().stopTimer("binary_timer");
     }
-
+    public ArrayList<Pair<File,CompilationUnit>> privateList(){
+        return bestCuPrivate;
+    }
     @Override
     public int testBuild() {
         try {
@@ -162,6 +167,8 @@ public class BinaryReduction implements Reduction{
             requiredForTest.add(originalCuList);
             requiredForTest.add(newProgramConfig);
             //if this works then update namedBestCUS to be good else
+            //cleanse the files sow e start fresh
+            ProgramWriter.cleanseFiles(originalCuList);
             if(testChange(newProgramConfig,originalCuList.size()+1,null)){
                 //if this works then add to list of known nodes and re-sort
                 r=j-1;
@@ -179,6 +186,8 @@ public class BinaryReduction implements Reduction{
                 newList.sort(sorting);
                 unknownNodes=newList;
                 bestCuList=newProgramConfig;
+                bestCuPrivate.clear();
+                bestCuPrivate.addAll(newProgramConfig);
                 //restart our search
                 i=0;
             }
@@ -232,7 +241,6 @@ public class BinaryReduction implements Reduction{
                 if(((File)pir.getValue0()).getAbsolutePath().equals(filePath)){
                     matchedProposal.add(pir);
                     break;
-
                 }
             }
             //System.out.println(filePath);

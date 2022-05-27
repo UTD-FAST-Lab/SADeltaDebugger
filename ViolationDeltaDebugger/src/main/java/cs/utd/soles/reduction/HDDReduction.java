@@ -106,11 +106,15 @@ public class HDDReduction implements Reduction{
             programInfo.getPerfTracker().addCount("total_rotations",1);
             int i=0;
             for (Pair<File, CompilationUnit> compilationUnit : bestCuList) {
+                System.out.println("Best CuList is: "+bestCuList);
                 //if we are under the time limit, traverse the tree
+                System.out.println("I is: "+i+" : CU is: " + compilationUnit.getValue1());
                 if(System.currentTimeMillis()<timeoutTime)
                     traverseTree(i, compilationUnit.getValue1(), bestCuList);
+
                 i++;
             }
+            System.out.print("After full traverse minimized: "+minimized);
         }
         programInfo.getPerfTracker().stopTimer("hdd_timer");
     }
@@ -205,12 +209,14 @@ public class HDDReduction implements Reduction{
                 requiredForTest.add(bestCuList);
                 requiredForTest.add(compPosition);
                 requiredForTest.add(copiedUnit);
+
+                System.out.println("tried to remove: "+ removedNodes);
                 if(removedNodes.size()>0&&testChange(bestCuList,compPosition,copiedUnit)){
                     //if changed, remove the nodes we removed from the original ast
                     for(Node x:alterableRemoves){
                         currentNode.remove(x);
                     }
-
+                    System.out.println("change was successful");
                     minimized=false;
                     copiedList.removeAll(removedNodes);
                     alterableList.removeAll(alterableRemoves);
@@ -223,16 +229,15 @@ public class HDDReduction implements Reduction{
                     i=copiedList.size()/2;
 
                     //TODO:: checkdeterminism fix it please
-                    if(this.argsHandler.checkDeterminism)
-                        if(!CheckDeterminism.checkOrCreate(programInfo, argsHandler, currentNode, alterableRemoves,"HDD-"+programInfo.getPerfTracker().getCountForCount("ast_changes"))){
+                    if(this.argsHandler.checkDeterminism) {
+                        if (!CheckDeterminism.checkOrCreate(programInfo, argsHandler, currentNode, alterableRemoves, "HDD-" + programInfo.getPerfTracker().getCountForCount("ast_changes"))) {
                             //it wasnt true idk, say it was bad or something. bad boy code! work and you will receive cheez its
                             System.out.println("Idk how this happened");
                             System.out.println(currentNode);
-                            System.out.println("HDD-"+programInfo.getPerfTracker().getCountForCount("ast_changes"));
+                            System.out.println("HDD-" + programInfo.getPerfTracker().getCountForCount("ast_changes"));
                             System.exit(-1);
-
                         }
-                    break;
+                    }
                 } else{
                     copiedUnit = bestCuList.get(compPosition).getValue1().clone();
                     copiedNode = findCurrentNode(currentNode, compPosition, copiedUnit);

@@ -26,7 +26,7 @@ public class DependencyGraph {
         boolean start=true;
         while(sc.hasNextLine()){
             String line = sc.nextLine();
-            if(line.contains("(classes)")) {
+            if(!line.contains("(not found)") && line.contains("->")) {
                 if (start) {
                     text += line.replace("(classes)\";", "");
                     start = false;
@@ -38,27 +38,42 @@ public class DependencyGraph {
         if(text.length()==0)
             return;
         String[] cut  = text.split("\\s+->\\s+");
-        //System.out.println(Arrays.toString(cut));
+        System.out.println(Arrays.toString(cut));
         for(int i=0;i<cut.length;i++){
             cut[i]=cut[i].replace("\"","").trim();
         }
-        //System.out.println(Arrays.toString(cut));
+        System.out.println(Arrays.toString(cut));
         for(int i=0;i<cut.length;i+=2){
 
-            ClassNode check = new ClassNode(cut[i], classNamesToPaths.get(cut[i]));
-            ClassNode node = graph.contains(check)? graph.get(graph.indexOf(check)):check;
 
-            ClassNode dCheck = new ClassNode(cut[i+1],classNamesToPaths.get(cut[i+1]));
-            ClassNode dNode = graph.contains(dCheck)? graph.get(graph.indexOf(dCheck)):dCheck;
-            //add dependency to node
-            node.addDependency(dNode);
+            ClassNode node =null;
+            ClassNode dNode =null;
+            ClassNode check=null;
+            ClassNode dCheck=null;
+            //map an internal dependency
+            if(classNamesToPaths.get(cut[i])!=null) {
+                check = new ClassNode(cut[i], classNamesToPaths.get(cut[i]));
+                node = graph.contains(check) ? graph.get(graph.indexOf(check)) : check;
 
-            if(check==node) {
-                graph.add(node);
+
             }
-            if(dCheck==dNode){
-                graph.add(dNode);
+            if(classNamesToPaths.get(cut[i+1])!=null) {
+                dCheck = new ClassNode(cut[i + 1], classNamesToPaths.get(cut[i + 1]));
+                dNode = graph.contains(dCheck) ? graph.get(graph.indexOf(dCheck)) : dCheck;
             }
+
+            if(node!=null&&dNode!=null) {
+                //add dependency to node
+                node.addDependency(dNode);
+            }
+            if(check!=null)
+                if(check==node) {
+                    graph.add(node);
+                }
+            if(dCheck!=null)
+                if(dCheck==dNode){
+                    graph.add(dNode);
+                }
 
             // System.out.println("print node: "+node);
         }
