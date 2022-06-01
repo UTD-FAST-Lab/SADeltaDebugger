@@ -173,7 +173,7 @@ public class Runner {
         try {
             ProgramWriter.saveCompilationUnits(bestCuList,bestCuList.size()+1,null);
             //final apk for program
-            //saveBestAPK(programInfo);
+            ScriptRunner.runBuildScript(programInfo);
         }catch(Exception e){
             e.printStackTrace();
         }

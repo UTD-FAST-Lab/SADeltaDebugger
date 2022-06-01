@@ -238,6 +238,7 @@ public class HDDReduction implements Reduction{
                             System.exit(-1);
                         }
                     }
+                    break;
                 } else{
                     copiedUnit = bestCuList.get(compPosition).getValue1().clone();
                     copiedNode = findCurrentNode(currentNode, compPosition, copiedUnit);
