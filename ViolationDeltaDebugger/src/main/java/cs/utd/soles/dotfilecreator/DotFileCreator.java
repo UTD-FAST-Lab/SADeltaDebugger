@@ -79,7 +79,7 @@ public class DotFileCreator {
 
     private static String pathsForCUs(File path, CompilationUnit cu){
 
-        System.out.println("package for cu: "+cu.getPackageDeclaration().get().getNameAsString());
+        //System.out.println("package for cu: "+cu.getPackageDeclaration().get().getNameAsString());
         String packageGuess = cu.getPackageDeclaration().isPresent()? cu.getPackageDeclaration().get().getNameAsString() : "";
         String finalGuess = packageGuess.replace(""+'.',"/")+"/"+path.getName().replace(".java",".class");
         System.out.println("Final guess: "+finalGuess);
