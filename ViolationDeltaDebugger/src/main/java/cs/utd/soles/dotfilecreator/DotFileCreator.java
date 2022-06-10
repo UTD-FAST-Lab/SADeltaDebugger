@@ -69,7 +69,11 @@ public class DotFileCreator {
         File classesDir = new File(apkDir.getAbsolutePath().substring(0,apkDir.getAbsolutePath().lastIndexOf(File.separator))+"/classes");
         for(File x: projectPackageClasses){
             try {
-                FileUtils.copyFile(x, new File(classesDir + File.separator + x.getName()));
+                File ourGuess = new File(classesDir + File.separator + x.getName());
+                if(ourGuess.exists())
+                    FileUtils.copyFile(x, ourGuess);
+                else
+                    System.out.println("Guessed File does not exist");
             } catch (IOException e) {
                 e.printStackTrace();
             }
