@@ -67,13 +67,16 @@ public class DotFileCreator {
     private static File transferClassesToDir(ArrayList<File> projectPackageClasses, File apkDir) {
         //this method turns things into a new directory called classes that is flat.
         File classesDir = new File(apkDir.getAbsolutePath().substring(0,apkDir.getAbsolutePath().lastIndexOf(File.separator))+"/classes");
+        if(!classesDir.exists()){
+            classesDir.mkdir();
+        }
         for(File x: projectPackageClasses){
             try {
                 File ourGuess = new File(classesDir + File.separator + x.getName());
                 if(ourGuess.exists())
                     FileUtils.copyFile(x, ourGuess);
                 else
-                    System.out.println("Guessed File does not exist");
+                    System.out.println("Guessed File does not exist: "+x.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
             }
