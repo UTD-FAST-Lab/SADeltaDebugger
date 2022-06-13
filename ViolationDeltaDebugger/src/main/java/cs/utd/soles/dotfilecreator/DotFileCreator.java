@@ -131,6 +131,8 @@ public class DotFileCreator {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println("unZip file: "+destUnzipFile);
         return Paths.get(destUnzipFile).toFile();
     }
 }
