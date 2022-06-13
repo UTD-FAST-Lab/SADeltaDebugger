@@ -26,12 +26,13 @@ public class DotFileCreator {
         programInfo.getPerfTracker().startTimer("jdeps_timer");
 
 
-        File rootZipDir = turnJarOrApkIntoClassFileDir(programInfo.getAPKFile());
+        String rootZipDir = turnJarOrApkIntoClassFileDir(programInfo.getAPKFile());
 
 
         ArrayList<File> classFilesToGrab = new ArrayList<>();
         for(Pair<File,CompilationUnit> pCu:cus){
-            classFilesToGrab.add(Paths.get(rootZipDir.getAbsolutePath()+"/"+pathsForCUs(pCu.getValue0(),pCu.getValue1())).toFile());
+            classFilesToGrab.add(Paths.get(rootZipDir+"/"+pathsForCUs(pCu.getValue0(),pCu.getValue1())).toFile());
+            System.out.println("classfile grab:"+classFilesToGrab.get(classFilesToGrab.size()-1).getAbsolutePath());
         }
 
         File projectClassesDir = transferClassesToDir(classFilesToGrab,programInfo.getAPKFile());
@@ -93,7 +94,7 @@ public class DotFileCreator {
         return finalGuess;
     }
 
-    private static File turnJarOrApkIntoClassFileDir(File apkFile) {
+    private static String turnJarOrApkIntoClassFileDir(File apkFile) {
 
         File jarFile = apkFile;
 
@@ -133,6 +134,6 @@ public class DotFileCreator {
         }
 
         System.out.println("unZip file: "+destUnzipFile);
-        return Paths.get(destUnzipFile).toFile();
+        return destUnzipFile;
     }
 }
