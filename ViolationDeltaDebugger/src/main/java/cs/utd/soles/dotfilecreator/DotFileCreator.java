@@ -74,7 +74,7 @@ public class DotFileCreator {
         for(File x: projectPackageClasses){
             try {
                 File ourGuess = new File(classesDir + File.separator + x.getName());
-                if(ourGuess.exists())
+                if(x.exists())
                     FileUtils.copyFile(x, ourGuess);
                 else
                     System.out.println("Guessed File does not exist: "+x.getAbsolutePath());
