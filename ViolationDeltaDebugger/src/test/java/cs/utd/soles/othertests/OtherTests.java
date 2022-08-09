@@ -66,7 +66,6 @@ public class OtherTests {
         index=0;
         debugHome=System.getProperty("DELTA_DEBUGGER_HOME");
         String f = "src/test/resources/testdata/OtherTests.json";
-        argsList = new DebugTest[1];
         Scanner sc = null;
         try {
             sc = new Scanner(new File(f));
@@ -80,6 +79,7 @@ public class OtherTests {
         }
         try {
             JSONArray jb = (JSONArray) new JSONParser().parse(s);
+            argsList = new DebugTest[jb.size()];
             for(int i=0;i<jb.size();i++)
                 argsList[i] = new DebugTest((JSONObject) jb.get(i));
         } catch (ParseException e) {
