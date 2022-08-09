@@ -111,7 +111,7 @@ public class BinaryReduction implements Reduction{
         return true;
     }
 
-    private DependencyGraph createDependencyNodes(ArrayList<Pair<File, CompilationUnit>> bestCuList) {
+    public DependencyGraph createDependencyNodes(ArrayList<Pair<File, CompilationUnit>> bestCuList) {
         try {
             File dotFile = DotFileCreator.createDotForProject(programInfo,bestCuList);
             DependencyGraph rg = new DependencyGraph();
@@ -207,7 +207,7 @@ public class BinaryReduction implements Reduction{
 
 
 
-    private void findClasses(Node cur, String fileName){
+    public void findClasses(Node cur, String fileName){
 
         //this node is a class
 

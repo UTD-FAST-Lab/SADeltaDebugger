@@ -4,6 +4,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.LineCounter;
 import cs.utd.soles.Runner;
 import cs.utd.soles.ScriptRunner;
+import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
 import org.javatuples.Pair;
@@ -15,7 +16,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junitpioneer.jupiter.SetSystemProperty;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -29,7 +29,6 @@ import org.junit.Assert;
 
 import static org.junit.Assert.assertEquals;
 
-@SetSystemProperty(key = "DELTA_DEBUGGER_HOME",value = "D:\\Local_androidTAEnvironment\\summer_work\\SADeltaDebugger")
 public class OtherTests {
 
     //holder class that holds run args and answers to each test
@@ -60,6 +59,7 @@ public class OtherTests {
     static DebugTest[] argsList;
     static int index=0;
     static String debugHome;
+    private static final long M_TO_MILLIS=60000;
     @BeforeClass
 
     public static void setUpClass(){
@@ -114,24 +114,47 @@ public class OtherTests {
 
     }
 
+
+    //simulates a run of the delta debugger with answers for each step of the algorithm
     public void testJsonTest(JSONObject answers) throws IOException, InterruptedException {
 
-        ArrayList<Pair<File, CompilationUnit>> originalCU = new ArrayList<Pair<File,CompilationUnit>>();
+        ArrayList<Pair<File, CompilationUnit>> originalCuList = new ArrayList<Pair<File,CompilationUnit>>();
         ArrayList<Pair<File, CompilationUnit>> bestCuList = new ArrayList<Pair<File,CompilationUnit>>();
 
 
 
-        originalCU = Runner.createCuList(s.getRootProjectDirs(),s.getJavaParseInst());
-        assertEquals((long) answers.get("cu_size"),originalCU.size());
+        originalCuList = Runner.createCuList(s.getRootProjectDirs(),s.getJavaParseInst());
+        assertEquals((long) answers.get("cu_size"),originalCuList.size());
 
         int testbuild = ScriptRunner.runBuildScript(s);
         assertEquals((long) answers.get("test_build"), testbuild);
-
 
         long lineCount = 0;
         for(File x: s.getRootProjectDirs()) {
             lineCount += LineCounter.countLinesDir(x.getAbsolutePath());
         }
         assertEquals((long)answers.get("line_counts"),lineCount);
+
+        int testtest = ScriptRunner.runTestScript(s);
+        assertEquals((long) answers.get("test_test"), testtest);
+
+
+
+        //test dot project creator and class stuff right here
+
+
+
+
+        //
+        //transfeClassesToDir
+        //createDotForProject
+
+
+        bestCuList = new ArrayList<>(originalCuList);
+
+        BinaryReduction b = new BinaryReduction(s,originalCuList,5*M_TO_MILLIS);
+
+
+
     }
 }

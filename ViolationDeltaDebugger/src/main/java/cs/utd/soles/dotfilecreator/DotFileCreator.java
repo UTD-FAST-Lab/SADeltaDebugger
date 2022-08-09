@@ -4,7 +4,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.ScriptRunner;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.threads.CommandThread;
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
