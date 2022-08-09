@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class ArgsHandler{
+public class ArgsHandler {
 
     @CommandLine.Option(names = "--runPrefix", description="The prefix to append to run artifacts.")
     public String runPrefix;
@@ -71,4 +71,5 @@ public class ArgsHandler{
 
     @CommandLine.Option(names="--logs", description = "Where to write log.", required = true)
     public File logFile;
+
 }

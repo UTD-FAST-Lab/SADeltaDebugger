@@ -387,7 +387,7 @@ public class Runner {
             return null;
     }*/
 
-    private static ArrayList<Pair<File,CompilationUnit>> createCuList(List<File> javadirpaths, JavaParser parser) throws IOException {
+    public static ArrayList<Pair<File,CompilationUnit>> createCuList(List<File> javadirpaths, JavaParser parser) throws IOException {
 
         ArrayList<Pair<File,CompilationUnit>> returnList = new ArrayList<>();
 

@@ -105,7 +105,7 @@ public class DotFileCreator {
 
             //dex to jar sh is in AndroidTA_FaultLocalization/resources/delta_debugger/dex-tools-2.1
             // ./d2j-dex2jar.sh -f  "path to apk" -o "outputfile.jar"
-            String scriptPath = System.getenv().get("DELTA_DEBUGGER_HOME")+"/dex-tools-2.1/d2j-dex2jar.sh";
+            String scriptPath = System.getProperty("DELTA_DEBUGGER_HOME")+"/dex-tools-2.1/d2j-dex2jar.sh";
             String[] params = new String[] {"-f", apkFile.getAbsolutePath(), "-o", outputFilePath};
             System.out.println("Running command " + scriptPath + Arrays.toString(params));
             try {

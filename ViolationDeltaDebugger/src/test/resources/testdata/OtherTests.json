@@ -1,0 +1,53 @@
+[
+  {
+    "test_name": "SimpleTest1",
+    "test_answers":{
+      "cu_size": 1,
+      "test_build": 0,
+      "start_lines": 7
+    },
+    "test_args": [
+      "--sources","src/test/resources/projects/othertest_projects/SimpleTest1/src/main/java",
+      "--target","src/test/resources/projects/othertest_projects/SimpleTest1/target/SimpleTest1-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--vs","src/test/resources/scripts/othertest_scripts/test_SimpleTest1.sh",
+      "--bs","src/test/resources/scripts/othertest_scripts/build_SimpleTest1.sh",
+      "--logs","SimpleTest1_log.txt",
+      "--class-reduction",
+      "--hdd"
+    ]
+  },
+  {
+    "test_name": "SimpleTest2",
+    "test_answers":{
+      "cu_size": 1,
+      "test_build": 0,
+      "start_lines": 11
+    },
+    "test_args": [
+      "--sources","src/test/resources/projects/othertest_projects/SimpleTest2/src/main/java",
+      "--target","src/test/resources/projects/othertest_projects/SimpleTest2/target/SimpleTest1-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--vs","src/test/resources/scripts/othertest_scripts/test_SimpleTest2.sh",
+      "--bs","src/test/resources/scripts/othertest_scripts/build_SimpleTest2.sh",
+      "--logs","SimpleTest2_log.txt",
+      "--class-reduction",
+      "--hdd"
+    ]
+  },
+  {
+    "test_name": "SimpleTest3",
+    "test_answers":{
+      "cu_size": 2,
+      "test_build": 0,
+      "start_lines": 15
+    },
+    "test_args": [
+      "--sources","src/test/resources/projects/othertest_projects/SimpleTest3/src/main/java",
+      "--target","src/test/resources/projects/othertest_projects/SimpleTest3/target/SimpleTest1-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--vs","src/test/resources/scripts/othertest_scripts/test_SimpleTest3.sh",
+      "--bs","src/test/resources/scripts/othertest_scripts/build_SimpleTest3.sh",
+      "--logs","SimpleTest3_log.txt",
+      "--class-reduction",
+      "--hdd"
+    ]
+  }
+]
