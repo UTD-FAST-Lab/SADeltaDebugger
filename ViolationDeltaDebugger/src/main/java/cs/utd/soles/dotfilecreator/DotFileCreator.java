@@ -10,7 +10,6 @@ import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +20,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DotFileCreator {
+
     private static Logger logger = LoggerFactory.getLogger(DotFileCreator.class);
+
     public static File createDotForProject(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> cus){
         programInfo.getPerfTracker().startTimer("jdeps_timer");
 
@@ -136,4 +137,5 @@ public class DotFileCreator {
         System.out.println("unZip file: "+destUnzipFile);
         return destUnzipFile;
     }
+
 }

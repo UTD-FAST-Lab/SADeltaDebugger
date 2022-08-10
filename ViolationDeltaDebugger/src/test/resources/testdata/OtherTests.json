@@ -4,7 +4,10 @@
     "test_answers":{
       "cu_size": 1,
       "test_build": 0,
-      "start_lines": 7
+      "start_lines": 7,
+      "test_test": 0,
+      "after_binary": 1,
+      "end_lines": 5
     },
     "test_args": [
       "--sources","src/test/resources/projects/othertest_projects/SimpleTest1/src/main/java",
@@ -21,7 +24,10 @@
     "test_answers":{
       "cu_size": 1,
       "test_build": 0,
-      "start_lines": 11
+      "start_lines": 11,
+      "test_test": 0,
+      "after_binary": 1,
+      "end_lines": 8
     },
     "test_args": [
       "--sources","src/test/resources/projects/othertest_projects/SimpleTest2/src/main/java",
@@ -36,9 +42,12 @@
   {
     "test_name": "SimpleTest3",
     "test_answers":{
-      "cu_size": 2,
+      "cu_size": 4,
       "test_build": 0,
-      "start_lines": 15
+      "start_lines": 23,
+      "test_test": 0,
+      "after_binary": 3,
+      "end_lines": 23
     },
     "test_args": [
       "--sources","src/test/resources/projects/othertest_projects/SimpleTest3/src/main/java",
