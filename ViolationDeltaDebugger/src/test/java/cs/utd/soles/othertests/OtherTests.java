@@ -120,7 +120,7 @@ public class OtherTests {
 
 
     //simulates a run of the delta debugger with answers for each step of the algorithm
-    public void testJsonTest(JSONObject answers) throws IOException, InterruptedException {
+    private void testJsonTest(JSONObject answers) throws IOException, InterruptedException {
 
         ArrayList<Pair<File, CompilationUnit>> originalCuList = new ArrayList<Pair<File,CompilationUnit>>();
         ArrayList<Pair<File, CompilationUnit>> bestCuList = new ArrayList<Pair<File,CompilationUnit>>();

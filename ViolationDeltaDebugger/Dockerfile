@@ -15,4 +15,5 @@ WORKDIR /app/SADeltaDebugger/ProjectLineCounter
 RUN mvn install
 WORKDIR /app/SADeltaDebugger/ViolationDeltaDebugger
 RUN mvn compile package -DskipTests
+RUN chmod -R 774 ../ViolationDeltaDebugger
 ENTRYPOINT ["mvn","test"]
