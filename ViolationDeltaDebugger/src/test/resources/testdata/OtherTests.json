@@ -24,7 +24,7 @@
     "test_answers":{
       "cu_size": 1,
       "test_build": 0,
-      "start_lines": 11,
+      "start_lines": 13,
       "test_test": 0,
       "after_binary": 1,
       "end_lines": 8
