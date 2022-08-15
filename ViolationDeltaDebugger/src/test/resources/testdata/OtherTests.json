@@ -7,7 +7,7 @@
       "start_lines": 42,
       "test_test": 0,
       "after_binary": 2,
-      "end_lines": 20
+      "end_lines": 19
     },
     "test_args": [
       "--sources","src/test/resources/projects/othertest_projects/MultipleLineError5/src/main/java",
