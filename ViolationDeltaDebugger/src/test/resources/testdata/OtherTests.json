@@ -31,7 +31,7 @@
     },
     "test_args": [
       "--sources","src/test/resources/projects/othertest_projects/SimpleTest2/src/main/java",
-      "--target","src/test/resources/projects/othertest_projects/SimpleTest2/target/SimpleTest1-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--target","src/test/resources/projects/othertest_projects/SimpleTest2/target/SimpleTest2-1.0-SNAPSHOT-jar-with-dependencies.jar",
       "--vs","src/test/resources/scripts/othertest_scripts/test_SimpleTest2.sh",
       "--bs","src/test/resources/scripts/othertest_scripts/build_SimpleTest2.sh",
       "--logs","SimpleTest2_log.txt",
@@ -51,7 +51,7 @@
     },
     "test_args": [
       "--sources","src/test/resources/projects/othertest_projects/SimpleTest3/src/main/java",
-      "--target","src/test/resources/projects/othertest_projects/SimpleTest3/target/SimpleTest1-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--target","src/test/resources/projects/othertest_projects/SimpleTest3/target/SimpleTest3-1.0-SNAPSHOT-jar-with-dependencies.jar",
       "--vs","src/test/resources/scripts/othertest_scripts/test_SimpleTest3.sh",
       "--bs","src/test/resources/scripts/othertest_scripts/build_SimpleTest3.sh",
       "--logs","SimpleTest3_log.txt",
