@@ -1,5 +1,25 @@
 [
   {
+    "test_name": "MultipleLineError5",
+    "test_answers":{
+      "cu_size": 4,
+      "test_build": 0,
+      "start_lines": 42,
+      "test_test": 0,
+      "after_binary": 2,
+      "end_lines": 20
+    },
+    "test_args": [
+      "--sources","src/test/resources/projects/othertest_projects/MultipleLineError5/src/main/java",
+      "--target","src/test/resources/projects/othertest_projects/MultipleLineError5/target/MultipleLineError5-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--vs","src/test/resources/scripts/othertest_scripts/test_MultipleLineError5.sh",
+      "--bs","src/test/resources/scripts/othertest_scripts/build_MultipleLineError5.sh",
+      "--logs","MultipleLineError5_log.txt",
+      "--class-reduction",
+      "--hdd"
+    ]
+  },
+  {
     "test_name": "SimpleTest1",
     "test_answers":{
       "cu_size": 1,
@@ -47,7 +67,7 @@
       "start_lines": 31,
       "test_test": 0,
       "after_binary": 3,
-      "end_lines": 23
+      "end_lines": 20
     },
     "test_args": [
       "--sources","src/test/resources/projects/othertest_projects/SimpleTest3/src/main/java",
