@@ -9,7 +9,7 @@ ENV DELTA_DEBUGGER_HOME="/app/SADeltaDebugger"
 WORKDIR /app  
 RUN git clone --branch test_branch https://github.com/Pancax/SADeltaDebugger
 WORKDIR /app/SADeltaDebugger
-#ADD "https://api.github.com/repos/Pancax/SADeltaDebugger/commits/test_branch" latest_commits
+ADD "https://api.github.com/repos/Pancax/SADeltaDebugger/commits/test_branch" latest_commits
 RUN git pull
 WORKDIR /app/SADeltaDebugger/ProjectLineCounter
 RUN mvn install

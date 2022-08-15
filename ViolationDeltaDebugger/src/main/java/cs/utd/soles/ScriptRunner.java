@@ -39,10 +39,11 @@ public class ScriptRunner {
     public static int runScript(File scriptLocation, String[] params) throws IOException, InterruptedException {
         //hopefully this test script just prints out true/false
         List<String> command = new ArrayList<String>();
-        command.add(scriptLocation.getName());
+        command.add(scriptLocation.getAbsolutePath());
+        System.out.println(scriptLocation.exists());
         Collections.addAll(command, params);
         ProcessBuilder pb = new ProcessBuilder(command);
-        pb.directory(new File(scriptLocation.getAbsoluteFile().getParent()));
+        //pb.directory(new File(scriptLocation.getAbsoluteFile().getParent()));
         System.out.println(command);
         pb.redirectErrorStream(true);
         String output = "";
