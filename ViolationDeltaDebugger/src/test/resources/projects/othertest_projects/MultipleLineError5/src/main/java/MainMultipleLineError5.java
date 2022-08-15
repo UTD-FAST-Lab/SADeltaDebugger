@@ -1,4 +1,6 @@
-public class MainMultipleLineError5 {
+import cs.utd.soles.vehicle.Vehicle;
+
+class MainMultipleLineError5 {
 
     public static void main(String[] args){
         

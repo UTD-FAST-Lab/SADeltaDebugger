@@ -1,3 +1,5 @@
+package cs.utd.soles.vehicle;
+
 public class Truck extends Vehicle{
     
     public Truck(int gas, int mpg) {

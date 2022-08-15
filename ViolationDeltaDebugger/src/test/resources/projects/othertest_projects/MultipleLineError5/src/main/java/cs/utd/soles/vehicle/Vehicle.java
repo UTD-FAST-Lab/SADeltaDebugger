@@ -1,6 +1,8 @@
+package cs.utd.soles.vehicle;
+
 public class Vehicle {
-    int gas;
-    int mpg;
+    public int gas;
+    public int mpg;
 
     public Vehicle(int gas, int mpg){
         this.gas=gas;
