@@ -1,5 +1,25 @@
 [
   {
+    "test_name": "FlatClassesTest",
+    "test_answers":{
+      "cu_size": 3,
+      "test_build": 0,
+      "start_lines": 31,
+      "test_test": 0,
+      "after_binary": 3,
+      "end_lines": 17
+    },
+    "test_args": [
+      "--sources","src/test/resources/projects/othertest_projects/FlatClassesTest/src/main/java",
+      "--target","src/test/resources/projects/othertest_projects/FlatClassesTest/target/FlatClassesTest-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--vs","src/test/resources/scripts/othertest_scripts/test_FlatClassesTest.sh",
+      "--bs","src/test/resources/scripts/othertest_scripts/build_FlatClassesTest.sh",
+      "--logs","FlatClassesTest_log.txt",
+      "--class-reduction",
+      "--hdd"
+    ]
+  },
+  {
     "test_name": "MultipleLineError5",
     "test_answers":{
       "cu_size": 4,
