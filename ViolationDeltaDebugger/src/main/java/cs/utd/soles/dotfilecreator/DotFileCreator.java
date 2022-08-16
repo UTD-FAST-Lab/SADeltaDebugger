@@ -4,13 +4,12 @@ import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.ScriptRunner;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.threads.CommandThread;
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +20,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DotFileCreator {
+
     private static Logger logger = LoggerFactory.getLogger(DotFileCreator.class);
+
     public static File createDotForProject(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> cus){
         programInfo.getPerfTracker().startTimer("jdeps_timer");
 
@@ -35,7 +36,7 @@ public class DotFileCreator {
             System.out.println("classfile grab:"+classFilesToGrab.get(classFilesToGrab.size()-1).getAbsolutePath());
         }
 
-        File projectClassesDir = transferClassesToDir(classFilesToGrab,programInfo.getAPKFile());
+        File projectClassesDir = transferClassesToDir(classFilesToGrab,programInfo.getAPKFile(),rootZipDir);
         //need to find way to get only our projects classes we care about, inolves package name and such
 
 
@@ -65,15 +66,19 @@ public class DotFileCreator {
         return null;
     }
 
-    private static File transferClassesToDir(ArrayList<File> projectPackageClasses, File apkDir) {
-        //this method turns things into a new directory called classes that is flat.
+    private static File transferClassesToDir(ArrayList<File> projectPackageClasses, File apkDir, String zipDir) {
+        //this method turns things into a new directory called classes that contains only the classes for source project
         File classesDir = new File(apkDir.getAbsolutePath().substring(0,apkDir.getAbsolutePath().lastIndexOf(File.separator))+"/classes");
         if(!classesDir.exists()){
             classesDir.mkdir();
         }
         for(File x: projectPackageClasses){
             try {
-                File ourGuess = new File(classesDir + File.separator + x.getName());
+
+                //File rootZipDir + / + "package name" + / + x.getName()
+
+                String actualFilePath = x.getAbsolutePath().replace(zipDir,"");
+                File ourGuess = new File(classesDir + File.separator + actualFilePath);
                 if(x.exists())
                     FileUtils.copyFile(x, ourGuess);
                 else
@@ -105,7 +110,7 @@ public class DotFileCreator {
 
             //dex to jar sh is in AndroidTA_FaultLocalization/resources/delta_debugger/dex-tools-2.1
             // ./d2j-dex2jar.sh -f  "path to apk" -o "outputfile.jar"
-            String scriptPath = System.getenv().get("DELTA_DEBUGGER_HOME")+"/dex-tools-2.1/d2j-dex2jar.sh";
+            String scriptPath = System.getProperty("DELTA_DEBUGGER_HOME")+"/dex-tools-2.1/d2j-dex2jar.sh";
             String[] params = new String[] {"-f", apkFile.getAbsolutePath(), "-o", outputFilePath};
             System.out.println("Running command " + scriptPath + Arrays.toString(params));
             try {
@@ -136,4 +141,5 @@ public class DotFileCreator {
         System.out.println("unZip file: "+destUnzipFile);
         return destUnzipFile;
     }
+
 }

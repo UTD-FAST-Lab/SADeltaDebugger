@@ -21,10 +21,10 @@ public class HDDReduction implements Reduction{
 
     long timeoutTime;
     SetupClass programInfo;
-    ArgsHandler argsHandler;
-    public HDDReduction(SetupClass programInfo, ArgsHandler ar, long timeoutTime){
+    //ArgsHandler argsHandler;
+    public HDDReduction(SetupClass programInfo, /*, ArgsHandler ar,*/ long timeoutTime){
         this.programInfo=programInfo;
-        this.argsHandler = ar;
+       // this.argsHandler = ar;
         this.timeoutTime=timeoutTime+System.currentTimeMillis();
     }
 
@@ -228,7 +228,7 @@ public class HDDReduction implements Reduction{
                     copiedList = getCurrentNodeList(copiedNode, alterableList);
                     i=copiedList.size()/2;
 
-                    //TODO:: checkdeterminism fix it please
+                    /*//TODO:: checkdeterminism fix it please
                     if(this.argsHandler.checkDeterminism) {
                         if (!CheckDeterminism.checkOrCreate(programInfo, argsHandler, currentNode, alterableRemoves, "HDD-" + programInfo.getPerfTracker().getCountForCount("ast_changes"))) {
                             //it wasnt true idk, say it was bad or something. bad boy code! work and you will receive cheez its
@@ -237,7 +237,7 @@ public class HDDReduction implements Reduction{
                             System.out.println("HDD-" + programInfo.getPerfTracker().getCountForCount("ast_changes"));
                             System.exit(-1);
                         }
-                    }
+                    }*/
                     break;
                 } else{
                     copiedUnit = bestCuList.get(compPosition).getValue1().clone();

@@ -12,18 +12,18 @@ import cs.utd.soles.classgraph.ClassNode;
 import org.javatuples.Pair;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
 public class BinaryReduction implements Reduction{
 
     SetupClass programInfo;
-    HashMap<String, String> classNamesToPaths;
+    DependencyGraph graph;
     long timeout_time;
     private ArrayList<Pair<File,CompilationUnit>> bestCuPrivate;
     public BinaryReduction(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> originalUnits, long timeOutTime){
         this.programInfo=programInfo;
-        fillNamesToPaths(originalUnits);
         timeout_time = timeOutTime+System.currentTimeMillis();
         bestCuPrivate=new ArrayList<>();
     }
@@ -35,7 +35,16 @@ public class BinaryReduction implements Reduction{
         bestCuPrivate.addAll(bestCuList);
         programInfo.getPerfTracker().startTimer("binary_timer");
 
-        DependencyGraph graph = createDependencyNodes(originalCuList);
+        //create dot file and dependency graph for binary reductions use
+        File dotFile = DotFileCreator.createDotForProject(programInfo,bestCuList);
+        DependencyGraph graph = null;
+        try {
+            graph = new DependencyGraph(dotFile,originalCuList);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
         ArrayList<HashSet<ClassNode>> closures = graph.getTransitiveClosuresDifferent();
 
         System.out.println("Closures: "+closures);
@@ -109,18 +118,6 @@ public class BinaryReduction implements Reduction{
         programInfo.getPerfTracker().resetTimer("recreate_timer");
         programInfo.getPerfTracker().addCount("good_recreate_runs_binary",1);
         return true;
-    }
-
-    private DependencyGraph createDependencyNodes(ArrayList<Pair<File, CompilationUnit>> bestCuList) {
-        try {
-            File dotFile = DotFileCreator.createDotForProject(programInfo,bestCuList);
-            DependencyGraph rg = new DependencyGraph();
-            rg.parseGraphFromDot(dotFile, classNamesToPaths);
-            return rg;
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public void binaryReduction(ArrayList<HashSet<ClassNode>> closures, ArrayList<Pair<File, CompilationUnit>> originalCuList, ArrayList<Pair<File, CompilationUnit>> bestCuList){
@@ -203,34 +200,6 @@ public class BinaryReduction implements Reduction{
             i++;
 
         }
-    }
-
-
-
-    private void findClasses(Node cur, String fileName){
-
-        //this node is a class
-
-        Optional<PackageDeclaration> fullName = ((CompilationUnit) cur).getPackageDeclaration();
-        //either get fullName or just defualt to className
-        String name = fullName.isPresent()? fullName.get().getNameAsString(): "";
-        if(!name.isEmpty())
-            name=name+"."+fileName.substring(fileName.lastIndexOf(File.separator)+1,fileName.lastIndexOf(".java"));
-        else{
-            name=fileName.substring(fileName.lastIndexOf(File.separator)+1,fileName.lastIndexOf(".java"));
-        }
-        classNamesToPaths.put(name, fileName);
-
-    }
-    private void fillNamesToPaths(ArrayList<Pair<File,CompilationUnit>> originalCUnits){
-        classNamesToPaths = new HashMap<>();
-
-        for(Pair x: originalCUnits){
-            findClasses((Node)x.getValue1(), ((File)x.getValue0()).getAbsolutePath());
-        }
-    }
-    public String getFilePathForClass(String name){
-        return classNamesToPaths.get(name);
     }
     private static ArrayList<Pair<File,CompilationUnit>> matchProposal(HashSet<ClassNode> proposal, ArrayList<Pair<File,CompilationUnit>> bestCuList){
         ArrayList<Pair<File,CompilationUnit>> matchedProposal = new ArrayList<>();

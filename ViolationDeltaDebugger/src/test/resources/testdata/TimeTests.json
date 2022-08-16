@@ -1,0 +1,23 @@
+[
+  {
+    "test_name": "TimeTest1",
+    "test_answers": {
+      "program_timer": 2
+    },
+    "test_args": [
+      "--sources",
+      "src/test/resources/projects/othertest_projects/SimpleTest3/src/main/java",
+      "--target",
+      "src/test/resources/projects/othertest_projects/SimpleTest3/target/SimpleTest3-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--vs",
+      "src/test/resources/scripts/othertest_scripts/test_SimpleTest3.sh",
+      "--bs",
+      "src/test/resources/scripts/othertest_scripts/build_SimpleTest3.sh",
+      "--logs",
+      "TimeTest1_log.txt",
+      "--class-reduction",
+      "--hdd",
+      "--timeout","2"
+    ]
+  }
+]
