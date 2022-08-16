@@ -17,8 +17,7 @@
       "TimeTest1_log.txt",
       "--class-reduction",
       "--hdd",
-      "--timeout",
-      "2"
+      "--timeout 2"
     ]
   }
 ]
