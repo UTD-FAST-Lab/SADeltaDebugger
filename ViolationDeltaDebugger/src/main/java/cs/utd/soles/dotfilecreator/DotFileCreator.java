@@ -36,7 +36,7 @@ public class DotFileCreator {
             System.out.println("classfile grab:"+classFilesToGrab.get(classFilesToGrab.size()-1).getAbsolutePath());
         }
 
-        File projectClassesDir = transferClassesToDir(classFilesToGrab,programInfo.getAPKFile());
+        File projectClassesDir = transferClassesToDir(classFilesToGrab,programInfo.getAPKFile(),rootZipDir);
         //need to find way to get only our projects classes we care about, inolves package name and such
 
 
@@ -66,15 +66,19 @@ public class DotFileCreator {
         return null;
     }
 
-    private static File transferClassesToDir(ArrayList<File> projectPackageClasses, File apkDir) {
-        //this method turns things into a new directory called classes that is flat.
+    private static File transferClassesToDir(ArrayList<File> projectPackageClasses, File apkDir, String zipDir) {
+        //this method turns things into a new directory called classes that contains only the classes for source project
         File classesDir = new File(apkDir.getAbsolutePath().substring(0,apkDir.getAbsolutePath().lastIndexOf(File.separator))+"/classes");
         if(!classesDir.exists()){
             classesDir.mkdir();
         }
         for(File x: projectPackageClasses){
             try {
-                File ourGuess = new File(classesDir + File.separator + x.getName());
+
+                //File rootZipDir + / + "package name" + / + x.getName()
+
+                String actualFilePath = x.getAbsolutePath().replace(zipDir,"");
+                File ourGuess = new File(classesDir + File.separator + actualFilePath);
                 if(x.exists())
                     FileUtils.copyFile(x, ourGuess);
                 else
