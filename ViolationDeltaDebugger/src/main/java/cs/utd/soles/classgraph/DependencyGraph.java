@@ -1,7 +1,11 @@
 package cs.utd.soles.classgraph;
 
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.PackageDeclaration;
 import cs.utd.soles.callgraph.methodgraph.MethodNode;
 import cs.utd.soles.classgraph.ClassNode;
+import org.javatuples.Pair;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,7 +24,11 @@ public class DependencyGraph {
     }
 
     //construct this dependency graph from the dot file
-    public void parseGraphFromDot(File f, HashMap<String,String> classNamesToPaths) throws FileNotFoundException {
+    public DependencyGraph(File f, ArrayList<Pair<File, CompilationUnit>> originalCUs) throws FileNotFoundException {
+        graph = new LinkedList<ClassNode>();
+        methodGraph = new LinkedList<MethodNode>();
+        fillNamesToPaths(originalCUs);
+
         Scanner sc = new Scanner(f);
         String text = "";
         boolean start=true;
@@ -38,11 +46,11 @@ public class DependencyGraph {
         if(text.length()==0)
             return;
         String[] cut  = text.split("\\s+->\\s+");
-        System.out.println(Arrays.toString(cut));
+        //System.out.println(Arrays.toString(cut));
         for(int i=0;i<cut.length;i++){
             cut[i]=cut[i].replace("\"","").trim();
         }
-        System.out.println(Arrays.toString(cut));
+        //System.out.println(Arrays.toString(cut));
         for(int i=0;i<cut.length;i+=2){
 
 
@@ -78,6 +86,35 @@ public class DependencyGraph {
             // System.out.println("print node: "+node);
         }
 
+    }
+
+
+
+    private HashMap<String, String> classNamesToPaths;
+
+
+
+    public void findClasses(Node cur, String fileName){
+
+        //this node is a class
+
+        Optional<PackageDeclaration> fullName = ((CompilationUnit) cur).getPackageDeclaration();
+        //either get fullName or just defualt to className
+        String name = fullName.isPresent()? fullName.get().getNameAsString(): "";
+        if(!name.isEmpty())
+            name=name+"."+fileName.substring(fileName.lastIndexOf(File.separator)+1,fileName.lastIndexOf(".java"));
+        else{
+            name=fileName.substring(fileName.lastIndexOf(File.separator)+1,fileName.lastIndexOf(".java"));
+        }
+        classNamesToPaths.put(name, fileName);
+
+    }
+    private void fillNamesToPaths(ArrayList<Pair<File,CompilationUnit>> originalCUnits){
+        classNamesToPaths = new HashMap<>();
+
+        for(Pair x: originalCUnits){
+            findClasses((Node)x.getValue1(), ((File)x.getValue0()).getAbsolutePath());
+        }
     }
 
     private HashMap<ClassNode, HashSet<ClassNode>> visited;

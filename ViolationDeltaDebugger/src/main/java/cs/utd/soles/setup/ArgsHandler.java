@@ -59,10 +59,6 @@ public class ArgsHandler {
     public
     Optional<Integer> timeoutMinutes;
 
-    @CommandLine.Option(names="--binary-timeout", description="The timeout of the hierarchical " +
-            "delta debugging algorithm.")
-    public
-    Optional<Integer> binaryTimeoutMinutes;
 
     @CommandLine.Option(names="--check-determinism", description = "[DEPRECATED] Check determinism of the " +
             "analysis result.")

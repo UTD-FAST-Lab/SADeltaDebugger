@@ -85,58 +85,39 @@ public class Runner {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        /*try{
-            AqlRunner aqlRunner = new AqlRunner(programInfo.getPerfTracker());
-
-            if (aqlRunner.runAql(programInfo, -1, null, -1, "check")) {
-                System.out.println("violation reproduced");
-            } else {
-                System.out.println("Violation not reproduced. Exiting....");
-                System.exit(0);
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }*/
-
 
         bestCuList = new ArrayList<>(originalCuList);
 
-        int btimeoutTimeMinutes = 120;
-        Optional<Integer> arg = ar.binaryTimeoutMinutes;
-        if(arg.isPresent()) {
-            btimeoutTimeMinutes = arg.get();
 
-        }
-        System.out.println("CU before BR: "+bestCuList);
-        long beforetime = System.currentTimeMillis();
-        BinaryReduction binaryReduction = new BinaryReduction(programInfo,originalCuList, btimeoutTimeMinutes*M_TO_MILLIS);
-            if(ar.classReduction) {
-                ArrayList<Object> requirements = new ArrayList<>();
-                requirements.add(originalCuList);
-                requirements.add(bestCuList);
-                binaryReduction.reduce(requirements);
-                bestCuList=binaryReduction.privateList();
-            }
-            else{
-                btimeoutTimeMinutes=0;
-            }
-        System.out.println("CU after BR: "+bestCuList);
-        long millis_time_saved = Math.max(beforetime+(btimeoutTimeMinutes*M_TO_MILLIS)-System.currentTimeMillis(),0);
 
-        int minutes_time_saved = (int)(millis_time_saved/M_TO_MILLIS);
+        //handle timeout with either default or entered options
         int timeoutTimeMinutes = 120;
         if(ar.timeoutMinutes.isPresent()) {
             timeoutTimeMinutes= ar.timeoutMinutes.get();
 
         }
-        timeoutTimeMinutes=timeoutTimeMinutes+minutes_time_saved;
-        System.out.println("CU before HDD: "+bestCuList);
-        HDDReduction hddReduction = new HDDReduction(programInfo, timeoutTimeMinutes*M_TO_MILLIS);
-        if(ar.hdd) {
-                ArrayList<Object> requirements = new ArrayList<>();
-                requirements.add(bestCuList);
-                hddReduction.reduce(requirements);
 
+        long beforetime = System.currentTimeMillis();
+        BinaryReduction binaryReduction = new BinaryReduction(programInfo,originalCuList, (timeoutTimeMinutes)*M_TO_MILLIS);
+
+        if(ar.classReduction) {
+            ArrayList<Object> requirements = new ArrayList<>();
+            requirements.add(originalCuList);
+            requirements.add(bestCuList);
+            binaryReduction.reduce(requirements);
+            bestCuList=binaryReduction.privateList();
+        }
+
+        //after doing binary reduction, calculate time difference
+
+        long newTimeOutMillis = Math.max((beforetime + (timeoutTimeMinutes*M_TO_MILLIS) ) - System.currentTimeMillis(),0);
+        System.out.println("CU after BR: "+bestCuList);
+
+        HDDReduction hddReduction = new HDDReduction(programInfo, newTimeOutMillis);
+        if(ar.hdd) {
+            ArrayList<Object> requirements = new ArrayList<>();
+            requirements.add(bestCuList);
+            hddReduction.reduce(requirements);
         }
         System.out.println("CU after HDD: "+bestCuList);
         //saveBestAPK(programInfo);
