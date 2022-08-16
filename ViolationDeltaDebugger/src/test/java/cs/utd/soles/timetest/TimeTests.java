@@ -5,7 +5,6 @@ import cs.utd.soles.LineCounter;
 import cs.utd.soles.Runner;
 import cs.utd.soles.ScriptRunner;
 import cs.utd.soles.buildphase.ProgramWriter;
-import cs.utd.soles.dotfilecreator.DotFileCreator;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
 import cs.utd.soles.setup.ArgsHandler;
@@ -16,21 +15,15 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import picocli.CommandLine;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
-import org.junit.Assert;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TimeTests {
@@ -77,7 +70,7 @@ public class TimeTests {
             e.printStackTrace();
         }
 
-        String s ="";
+        String s ="";;
         while(sc.hasNextLine()){
             s += sc.nextLine();
         }
@@ -86,6 +79,8 @@ public class TimeTests {
             argsList = new DebugTest[jb.size()];
             for(int i=0;i<jb.size();i++)
                 argsList[i] = new DebugTest((JSONObject) jb.get(i));
+            System.out.println(argsList[0].args.toString());
+            System.out.println(argsList[0].args.timeoutMinutes);
         } catch (ParseException e) {
             e.printStackTrace();
         }

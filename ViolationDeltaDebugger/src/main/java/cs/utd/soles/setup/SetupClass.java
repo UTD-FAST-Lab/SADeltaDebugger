@@ -75,7 +75,7 @@ public class SetupClass {
         //positionals
         rootProjectDirs = ar.sources;
         javaParseInst = new JavaParser(parserConfig);
-
+        this.arguments = ar;
         setApkFile(ar.target);
         setTestScriptFile(ar.vs);
         setBuildScriptFile(ar.bs);
