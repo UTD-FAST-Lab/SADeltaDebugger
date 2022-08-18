@@ -126,6 +126,8 @@ public class TimeTests {
         originalCuList = Runner.createCuList(s.getRootProjectDirs(),s.getJavaParseInst());
         bestCuList = new ArrayList<>(originalCuList);
 
+
+        ScriptRunner.runBuildScript(s);
         int timeoutTimeMinutes = 120;
         if(s.getArguments().timeoutMinutes.isPresent()) {
             timeoutTimeMinutes= s.getArguments().timeoutMinutes.get();
