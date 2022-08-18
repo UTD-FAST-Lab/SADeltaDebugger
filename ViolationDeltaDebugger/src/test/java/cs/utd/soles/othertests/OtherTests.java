@@ -10,6 +10,7 @@ import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
 import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
+import cs.utd.soles.util.SanityException;
 import org.javatuples.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -36,7 +37,7 @@ import static org.junit.Assert.assertTrue;
 public class OtherTests {
 
     //holder class that holds run args and answers to each test
-    static class DebugTest{
+    public static class DebugTest{
         ArgsHandler args;
         JSONObject answers;
         String name;
@@ -65,7 +66,6 @@ public class OtherTests {
     static String debugHome;
     private static final long M_TO_MILLIS=60000;
     @BeforeClass
-
     public static void setUpClass(){
         index=0;
         debugHome=System.getProperty("DELTA_DEBUGGER_HOME");
@@ -109,9 +109,10 @@ public class OtherTests {
 
             try {
                 s = new SetupClass();
+                ScriptRunner.setBSanityCheck(-2);
                 s.doSetup(argsList[index].args);
                 testJsonTest(argsList[index].answers);
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException | InterruptedException | SanityException e) {
                 e.printStackTrace();
             }
         }
@@ -120,7 +121,7 @@ public class OtherTests {
 
 
     //simulates a run of the delta debugger with answers for each step of the algorithm
-    private void testJsonTest(JSONObject answers) throws IOException, InterruptedException {
+    private void testJsonTest(JSONObject answers) throws IOException, InterruptedException, SanityException {
 
         ArrayList<Pair<File, CompilationUnit>> originalCuList = new ArrayList<Pair<File,CompilationUnit>>();
         ArrayList<Pair<File, CompilationUnit>> bestCuList = new ArrayList<Pair<File,CompilationUnit>>();
@@ -174,6 +175,7 @@ public class OtherTests {
         }
 
         assertEquals((long)answers.get("end_lines"),endLines);
-
+        ProgramWriter.saveCompilationUnits(originalCuList,originalCuList.size()+1,null);
+        ScriptRunner.runBuildScript(s);
     }
 }

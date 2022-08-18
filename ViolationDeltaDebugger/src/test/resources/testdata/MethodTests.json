@@ -1,0 +1,34 @@
+[
+  {
+    "test_name": "TruePositiveTest",
+    "test_answers":{
+      "build_script_sanity": 1,
+      "correct_script": "src/test/resources/scripts/othertest_scripts/build_SimpleTest1.sh"
+    },
+    "test_args": [
+      "--sources","src/test/resources/projects/othertest_projects/SimpleTest1/src/main/java",
+      "--target","src/test/resources/projects/othertest_projects/SimpleTest1/target/SimpleTest1-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--vs","src/test/resources/scripts/othertest_scripts/test_SimpleTest1.sh",
+      "--bs","src/test/resources/scripts/methodtest_scripts/build_TruePositiveTest.sh",
+      "--logs","TruePositiveTest_log.txt",
+      "--class-reduction",
+      "--hdd"
+    ]
+  },
+  {
+    "test_name": "FalsePositiveTest",
+    "test_answers":{
+      "build_script_sanity": 0,
+      "correct_script": "src/test/resources/scripts/othertest_scripts/build_SimpleTest1.sh"
+    },
+    "test_args": [
+      "--sources","src/test/resources/projects/othertest_projects/SimpleTest1/src/main/java",
+      "--target","src/test/resources/projects/othertest_projects/SimpleTest1/target/SimpleTest1-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--vs","src/test/resources/scripts/othertest_scripts/test_SimpleTest1.sh",
+      "--bs","src/test/resources/scripts/methodtest_scripts/build_FalsePositiveTest.sh",
+      "--logs","FalsePositiveTest_log.txt",
+      "--class-reduction",
+      "--hdd"
+    ]
+  }
+]

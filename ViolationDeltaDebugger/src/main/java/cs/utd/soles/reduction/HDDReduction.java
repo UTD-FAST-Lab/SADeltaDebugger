@@ -11,6 +11,7 @@ import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.determinism.CheckDeterminism;
 import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
+import cs.utd.soles.util.SanityException;
 import org.javatuples.Pair;
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class HDDReduction implements Reduction{
     }
 
     @Override
-    public void reduce(ArrayList<Object> requireds) {
+    public void reduce(ArrayList<Object> requireds) throws SanityException {
         ArrayList<Pair<File,CompilationUnit>> bestCuList = (ArrayList<Pair<File, CompilationUnit>>) requireds.get(0);
         hddReduction(bestCuList);
     }
@@ -57,7 +58,10 @@ public class HDDReduction implements Reduction{
     }
 
     @Override
-    public boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList, int unitP, CompilationUnit cu) {
+    public boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList, int unitP, CompilationUnit cu) throws SanityException {
+
+
+
 
         try {
             ProgramWriter.saveCompilationUnits(newCuList,unitP,cu);
@@ -79,6 +83,13 @@ public class HDDReduction implements Reduction{
         programInfo.getPerfTracker().addTime("time_good_compile_runs_hdd",programInfo.getPerfTracker().getTimeForTimer("compile_timer"));
         programInfo.getPerfTracker().resetTimer("compile_timer");
 
+
+        if(ScriptRunner.getBSanity()!=0){
+            throw new SanityException("Build script not changing target between changes");
+        }
+
+
+
         programInfo.getPerfTracker().startTimer("recreate_timer");
         if(testViolation() != 0) {
             programInfo.getPerfTracker().addCount("bad_recreate_runs_hdd", 1);
@@ -93,11 +104,15 @@ public class HDDReduction implements Reduction{
                 programInfo.getPerfTracker().getTimeForTimer("recreate_timer"));
         programInfo.getPerfTracker().resetTimer("recreate_timer");
         programInfo.getPerfTracker().addCount("good_recreate_runs_hdd",1);
+
+
+
+
         return true;
     }
 
     private boolean minimized=false;
-    public void hddReduction(ArrayList<Pair<File, CompilationUnit>> bestCuList){
+    public void hddReduction(ArrayList<Pair<File, CompilationUnit>> bestCuList) throws SanityException {
 
         minimized=false;
         programInfo.getPerfTracker().startTimer("hdd_timer");
@@ -119,7 +134,7 @@ public class HDDReduction implements Reduction{
         programInfo.getPerfTracker().stopTimer("hdd_timer");
     }
 
-    private void traverseTree(int currentCU, Node currentNode, ArrayList<Pair<File, CompilationUnit>> bestCuList){
+    private void traverseTree(int currentCU, Node currentNode, ArrayList<Pair<File, CompilationUnit>> bestCuList) throws SanityException {
 
 
         if(!currentNode.getParentNode().isPresent()&&!(currentNode instanceof CompilationUnit)||currentNode==null){
@@ -138,7 +153,7 @@ public class HDDReduction implements Reduction{
 
     }
 
-    private void process(int currentCUPos, Node currentNode, ArrayList<Pair<File, CompilationUnit>> bestCuList){
+    private void process(int currentCUPos, Node currentNode, ArrayList<Pair<File, CompilationUnit>> bestCuList) throws SanityException {
 
         if(!currentNode.getParentNode().isPresent()&&!(currentNode instanceof CompilationUnit)){
             return;
@@ -170,7 +185,7 @@ public class HDDReduction implements Reduction{
 
     }
 
-    private void handleNodeList(int compPosition, Node currentNode, List<Node> childList, ArrayList<Pair<File, CompilationUnit>> bestCuList){
+    private void handleNodeList(int compPosition, Node currentNode, List<Node> childList, ArrayList<Pair<File, CompilationUnit>> bestCuList) throws SanityException {
 
         //make a copy of the tree
         CompilationUnit copiedUnit = bestCuList.get(compPosition).getValue1().clone();

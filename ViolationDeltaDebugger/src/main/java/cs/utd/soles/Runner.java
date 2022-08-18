@@ -8,6 +8,7 @@ import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
 import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
+import cs.utd.soles.util.SanityException;
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class Runner {
     //1 minute is this long in millis
     private static final long M_TO_MILLIS=60000;
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws SanityException {
         ArgsHandler ar = new ArgsHandler();
         new CommandLine(ar).parseArgs(args);
         if (ar.help) {
@@ -39,16 +40,19 @@ public class Runner {
         ArrayList<Pair<File,CompilationUnit>> originalCuList = new ArrayList<>();
         ArrayList<Pair<File,CompilationUnit>> bestCuList = new ArrayList<>();
 
+
+
         try{
             programInfo.getPerfTracker().startTimer("setup_timer");
             programInfo.doSetup(ar);
 
             originalCuList=createCuList(programInfo.getRootProjectDirs(), programInfo.getJavaParseInst());
 
+
             //trackFilesChanges(programInfo,originalCuList);
 
             //System.out.println(programInfo.getArguments().printArgValues());
-
+            ProgramWriter.saveCompilationUnits(originalCuList, originalCuList.size()+1,null);
 
             if(ScriptRunner.runBuildScript(programInfo) != 0) {
                 System.out.println("Failed to build program.");
@@ -148,6 +152,7 @@ public class Runner {
 
         /**/
         // Collections.sort(bestCUList,cuListComp);
+
 
         programInfo.getPerfTracker().stopTimer("program_timer");
 

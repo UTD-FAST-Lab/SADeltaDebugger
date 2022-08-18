@@ -1,10 +1,11 @@
-package cs.utd.soles.timetest;
+package cs.utd.soles.methodtests;
 
 import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.LineCounter;
 import cs.utd.soles.Runner;
 import cs.utd.soles.ScriptRunner;
 import cs.utd.soles.buildphase.ProgramWriter;
+import cs.utd.soles.dotfilecreator.DotFileCreator;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
 import cs.utd.soles.setup.ArgsHandler;
@@ -15,21 +16,21 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import picocli.CommandLine;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class TimeTests {
-
-    //holder class that holds run args and answers to each test
+public class MethodTests {
     static class DebugTest{
         ArgsHandler args;
         JSONObject answers;
@@ -59,11 +60,10 @@ public class TimeTests {
     static String debugHome;
     private static final long M_TO_MILLIS=60000;
     @BeforeClass
-
     public static void setUpClass(){
         index=0;
         debugHome=System.getProperty("DELTA_DEBUGGER_HOME");
-        String f = "src/test/resources/testdata/TimeTests.json";
+        String f = "src/test/resources/testdata/MethodTests.json";
         Scanner sc = null;
         try {
             sc = new Scanner(new File(f));
@@ -71,7 +71,7 @@ public class TimeTests {
             e.printStackTrace();
         }
 
-        String s ="";;
+        String s ="";
         while(sc.hasNextLine()){
             s += sc.nextLine();
         }
@@ -80,8 +80,6 @@ public class TimeTests {
             argsList = new DebugTest[jb.size()];
             for(int i=0;i<jb.size();i++)
                 argsList[i] = new DebugTest((JSONObject) jb.get(i));
-            System.out.println(argsList[0].args.toString());
-            System.out.println(argsList[0].args.timeoutMinutes);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -92,10 +90,6 @@ public class TimeTests {
 
     public SetupClass s;
 
-    @After
-    public void after(){
-
-    }
 
     @Test
     public void testAllJsonTests(){
@@ -115,49 +109,40 @@ public class TimeTests {
 
     }
 
-
-    //simulates a run of the delta debugger with answers for each step of the algorithm
     private void testJsonTest(JSONObject answers) throws IOException, InterruptedException {
-
         ArrayList<Pair<File, CompilationUnit>> originalCuList = new ArrayList<Pair<File,CompilationUnit>>();
         ArrayList<Pair<File, CompilationUnit>> bestCuList = new ArrayList<Pair<File,CompilationUnit>>();
 
 
         originalCuList = Runner.createCuList(s.getRootProjectDirs(),s.getJavaParseInst());
+
+        File prevB = s.getBuildScriptFile();
+        s.setBuildScriptFile(Paths.get((String)answers.get("correct_script")).toFile());
+        //run correct build script
+        int testbuild = ScriptRunner.runBuildScript(s);
+        s.setBuildScriptFile(prevB);
+
+        int testtest = ScriptRunner.runTestScript(s);
+
+        //cu size, start lines, class diagram, binary reduction, hdd, results
         bestCuList = new ArrayList<>(originalCuList);
 
-        int timeoutTimeMinutes = 120;
-        if(s.getArguments().timeoutMinutes.isPresent()) {
-            timeoutTimeMinutes= s.getArguments().timeoutMinutes.get();
+        File dotFile = DotFileCreator.createDotForProject(s,originalCuList);
+        assertTrue(dotFile.exists());
 
-        }
-
-        long beforetime = System.currentTimeMillis();
-        BinaryReduction b = new BinaryReduction(s,originalCuList,timeoutTimeMinutes*M_TO_MILLIS);
-        ArrayList<Object> requirements = new ArrayList<>();
-        requirements.add(originalCuList);
-        requirements.add(bestCuList);
-        b.reduce(requirements);
-        bestCuList=b.privateList();
-
-        long newTimeOutMillis = Math.max((beforetime + (timeoutTimeMinutes*M_TO_MILLIS) ) - System.currentTimeMillis(),0);
-
-        HDDReduction hdd = new HDDReduction(s,newTimeOutMillis);
-        requirements = new ArrayList<>();
+        HDDReduction hdd = new HDDReduction(s,10*M_TO_MILLIS);
+        ArrayList requirements = new ArrayList<>();
         requirements.add(bestCuList);
         try {
             hdd.reduce(requirements);
         } catch (SanityException e) {
             e.printStackTrace();
         }
-
-        long operationTime = System.currentTimeMillis()-beforetime;
-
-        long stoptime = beforetime+(((long)answers.get("program_timer")*M_TO_MILLIS))+300;
-
-        assertTrue(operationTime < stoptime);
+        assertEquals((long)answers.get("build_script_sanity"),ScriptRunner.getBSanity());
 
         ProgramWriter.saveCompilationUnits(originalCuList,originalCuList.size()+1,null);
+        s.setBuildScriptFile(Paths.get((String)answers.get("correct_script")).toFile());
+        //run correct build script
         ScriptRunner.runBuildScript(s);
     }
 }

@@ -14,10 +14,44 @@ import java.util.Set;
 
 public class ScriptRunner {
 
+    private static int bsanityStatus = 0;
+    private static long bsanityCheck = -2;
+
+
+    public static int getBSanity(){
+        return bsanityStatus;
+    }
+    public static void setBSanityCheck(long val){bsanityCheck=val;}
     public static int runBuildScript(SetupClass sc) throws IOException, InterruptedException {
         int exitCode = runScript(sc.getBuildScriptFile());
         System.out.println(String.format("Output of running build script was %d", exitCode));
+
+
+        if(exitCode==0)
+            checkBSanity(sc.getAPKFile());
+
         return exitCode;
+    }
+
+    private static void checkBSanity(File targetFile) {
+
+        if(!targetFile.exists()){
+            bsanityStatus=1;
+            return;
+        }
+
+        long filemodify=targetFile.lastModified();
+        System.out.println(bsanityCheck);
+        System.out.println(filemodify);
+        if(bsanityCheck==-2){
+            bsanityCheck = filemodify;
+            bsanityStatus=0;
+            return;
+        }
+        if((bsanityCheck == filemodify)){
+            //if build succeeds and filehash is same, we somehow didnt change program even though we just rewrote? no sanity.
+            bsanityStatus=1;
+        }
     }
 
     public static int runTestScript(SetupClass sc) throws IOException, InterruptedException {
