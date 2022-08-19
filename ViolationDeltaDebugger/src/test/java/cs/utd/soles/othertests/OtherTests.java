@@ -127,8 +127,11 @@ public class OtherTests {
         ArrayList<Pair<File, CompilationUnit>> bestCuList = new ArrayList<Pair<File,CompilationUnit>>();
 
 
+
         originalCuList = Runner.createCuList(s.getRootProjectDirs(),s.getJavaParseInst());
         assertEquals((long) answers.get("cu_size"),originalCuList.size());
+
+        ProgramWriter.saveCompilationUnits(originalCuList,originalCuList.size()+1,null);
 
         int testbuild = ScriptRunner.runBuildScript(s);
         assertEquals((long) answers.get("test_build"), testbuild);
