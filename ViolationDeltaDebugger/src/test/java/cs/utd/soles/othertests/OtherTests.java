@@ -98,7 +98,6 @@ public class OtherTests {
 
     @After
     public void after(){
-
     }
 
     @Test
@@ -114,6 +113,8 @@ public class OtherTests {
                 testJsonTest(argsList[index].answers);
             } catch (IOException | InterruptedException | SanityException e) {
                 e.printStackTrace();
+
+
             }
         }
 

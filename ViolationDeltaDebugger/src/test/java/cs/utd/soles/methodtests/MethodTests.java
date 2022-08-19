@@ -137,6 +137,11 @@ public class MethodTests {
             hdd.reduce(requirements);
         } catch (SanityException e) {
             e.printStackTrace();
+        } finally{
+            ProgramWriter.saveCompilationUnits(originalCuList,originalCuList.size()+1,null);
+            s.setBuildScriptFile(Paths.get((String)answers.get("correct_script")).toFile());
+            //run correct build script
+            ScriptRunner.runBuildScript(s);
         }
         assertEquals((long)answers.get("build_script_sanity"),ScriptRunner.getBSanity());
 
