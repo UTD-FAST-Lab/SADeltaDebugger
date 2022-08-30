@@ -16,6 +16,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import picocli.CommandLine;
@@ -122,10 +123,8 @@ public class TimeTests {
         ArrayList<Pair<File, CompilationUnit>> originalCuList = new ArrayList<Pair<File,CompilationUnit>>();
         ArrayList<Pair<File, CompilationUnit>> bestCuList = new ArrayList<Pair<File,CompilationUnit>>();
 
-
         originalCuList = Runner.createCuList(s.getRootProjectDirs(),s.getJavaParseInst());
-        bestCuList = new ArrayList<>(originalCuList);
-
+        bestCuList = Runner.copyCuList(originalCuList);
 
         ScriptRunner.runBuildScript(s);
         int timeoutTimeMinutes = 120;
@@ -133,7 +132,6 @@ public class TimeTests {
             timeoutTimeMinutes= s.getArguments().timeoutMinutes.get();
 
         }
-
         long beforetime = System.currentTimeMillis();
         BinaryReduction b = new BinaryReduction(s,originalCuList,timeoutTimeMinutes*M_TO_MILLIS);
         ArrayList<Object> requirements = new ArrayList<>();
@@ -157,9 +155,9 @@ public class TimeTests {
 
         long stoptime = beforetime+(((long)answers.get("program_timer")*M_TO_MILLIS))+300;
 
-        assertTrue(operationTime < stoptime);
-
+        System.out.println("reverted units");
         ProgramWriter.saveCompilationUnits(originalCuList,originalCuList.size()+1,null);
         ScriptRunner.runBuildScript(s);
+        assertTrue(operationTime < stoptime);
     }
 }

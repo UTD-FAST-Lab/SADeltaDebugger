@@ -1,5 +1,4 @@
 package cs.utd.soles.blob;
-
 public class Blob {
     int x;
     String i;
@@ -7,7 +6,6 @@ public class Blob {
         this.x=x;
         this.i=i;
     }
-    
     public int divide(){
         return this.x/Integer.parseInt(i);
     }

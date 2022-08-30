@@ -150,7 +150,7 @@ public class OtherTests {
         //cu size, start lines, class diagram, binary reduction, hdd, results
 
 
-        bestCuList = new ArrayList<>(originalCuList);
+        bestCuList = Runner.copyCuList(originalCuList);
 
         File dotFile = DotFileCreator.createDotForProject(s,originalCuList);
         assertTrue(dotFile.exists());
@@ -177,9 +177,8 @@ public class OtherTests {
         for(File x: s.getRootProjectDirs()){
             endLines+=LineCounter.countLinesDir(x.getAbsolutePath());
         }
-
-        assertEquals((long)answers.get("end_lines"),endLines);
         ProgramWriter.saveCompilationUnits(originalCuList,originalCuList.size()+1,null);
         ScriptRunner.runBuildScript(s);
+        assertEquals((long)answers.get("end_lines"),endLines);
     }
 }

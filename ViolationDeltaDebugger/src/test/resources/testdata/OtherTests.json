@@ -84,7 +84,7 @@
     "test_answers":{
       "cu_size": 4,
       "test_build": 0,
-      "start_lines": 30,
+      "start_lines": 31,
       "test_test": 0,
       "after_binary": 3,
       "end_lines": 20

@@ -19,5 +19,20 @@
       "--hdd",
       "--timeout","2"
     ]
+  },
+  {
+    "test_name": "TimeTest2",
+    "test_answers": {
+      "program_timer": 1
+    },
+    "test_args": [
+      "--sources","src/test/resources/projects/othertest_projects/FlatClassesTest/src/main/java",
+      "--target","src/test/resources/projects/othertest_projects/FlatClassesTest/target/FlatClassesTest-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "--vs","src/test/resources/scripts/othertest_scripts/test_FlatClassesTest.sh",
+      "--bs","src/test/resources/scripts/othertest_scripts/build_FlatClassesTest.sh",
+      "--logs","TimeTest2_log.txt",
+      "--hdd",
+      "--timeout","2"
+    ]
   }
 ]

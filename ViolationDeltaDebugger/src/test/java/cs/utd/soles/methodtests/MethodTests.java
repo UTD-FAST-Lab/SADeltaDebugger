@@ -125,7 +125,7 @@ public class MethodTests {
         int testtest = ScriptRunner.runTestScript(s);
 
         //cu size, start lines, class diagram, binary reduction, hdd, results
-        bestCuList = new ArrayList<>(originalCuList);
+        bestCuList = Runner.copyCuList(originalCuList);
 
         File dotFile = DotFileCreator.createDotForProject(s,originalCuList);
         assertTrue(dotFile.exists());
@@ -143,11 +143,15 @@ public class MethodTests {
             //run correct build script
             ScriptRunner.runBuildScript(s);
         }
+
+
         assertEquals((long)answers.get("build_script_sanity"),ScriptRunner.getBSanity());
 
         ProgramWriter.saveCompilationUnits(originalCuList,originalCuList.size()+1,null);
         s.setBuildScriptFile(Paths.get((String)answers.get("correct_script")).toFile());
         //run correct build script
         ScriptRunner.runBuildScript(s);
+
+
     }
 }

@@ -90,7 +90,9 @@ public class Runner {
             e.printStackTrace();
         }
 
-        bestCuList = new ArrayList<>(originalCuList);
+        bestCuList = Runner.copyCuList(originalCuList);
+
+
 
 
 
@@ -406,6 +408,17 @@ public class Runner {
         return returnList;
     }
     //static String APKReductionPath="/home/dakota/AndroidTA/AndroidTAEnvironment/APKReductionDir";
+
+    public static ArrayList<Pair<File,CompilationUnit>> copyCuList(ArrayList<Pair<File,CompilationUnit>> originalList){
+
+        ArrayList<Pair<File,CompilationUnit>> returnList = new ArrayList<>();
+        for(Pair<File,CompilationUnit> x: originalList){
+            Pair<File,CompilationUnit> newS = new Pair<>(x.getValue0(),x.getValue1().clone());
+            returnList.add(newS);
+        }
+        return returnList;
+    }
+
 
     //this method updates the best apk for this run or creates it if it needs to, by the end of the run the best apk should be saved
     public static void saveBestAPK(SetupClass programInfo) {
