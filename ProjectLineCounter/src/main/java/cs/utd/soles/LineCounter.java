@@ -46,6 +46,7 @@ public class LineCounter {
             bigString+=line;
 
         }
+        sc.close();
 
         //get rid of all the comments
         //this one causes stack overflow for whatever reason
