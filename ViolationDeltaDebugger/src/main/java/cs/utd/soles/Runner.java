@@ -92,10 +92,6 @@ public class Runner {
 
         bestCuList = Runner.copyCuList(originalCuList);
 
-
-
-
-
         //handle timeout with either default or entered options
         int timeoutTimeMinutes = 120;
         if(ar.timeoutMinutes.isPresent()) {
@@ -399,7 +395,7 @@ public class Runner {
                         Pair<File, CompilationUnit> b = new Pair(x, parseResult.getResult().get());
                         returnList.add(b);
                     } else {
-                        logger.warn(String.format("Parsing failed for file %s", x.toString()));;
+                        logger.warn(String.format("Parsing failed for file %s", x.toString()));
                     }
                 }
             }

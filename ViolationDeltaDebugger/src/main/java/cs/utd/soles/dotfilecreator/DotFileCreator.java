@@ -123,10 +123,12 @@ public class DotFileCreator {
             //System.out.println(ScriptRunner.lastOutput);
             jarFile= Paths.get(outputFilePath).toFile();
         }
-        File zipFile = new File(jarFile.getAbsolutePath().replace(".jar", ".zip"));
 
+        String zipFileName = jarFile.getName().replace(".jar",".zip");
+        File zipFile = new File(jarFile.getParent()+File.separator+zipFileName);
 
-        String destUnzipFile = zipFile.getAbsolutePath().replace(".zip","");
+        String unZipFileName = zipFileName.replace(".zip","");
+        String destUnzipFile = jarFile.getParent()+File.separator+unZipFileName;
 
         try{
             FileUtils.copyFile(jarFile,zipFile);
