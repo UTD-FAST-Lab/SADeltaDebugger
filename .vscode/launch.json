@@ -1,0 +1,33 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Runner",
+            "request": "launch",
+            "mainClass": "cs.utd.soles.Runner",
+            "projectName": "ViolationDeltaDebugger",
+            "cwd": "${workspaceFolder}/ViolationDeltaDebugger",
+            "args": [
+                "--sources=src/test/resources/projects/othertest_projects/SimpleTest1/src/main/java",
+                "--target=src/test/resources/projects/othertest_projects/SimpleTest1/target/SimpleTest1-1.0-SNAPSHOT-jar-with-dependencies.jar",
+                "--vs",
+                "src/test/resources/scripts/othertest_scripts/test_SimpleTest1.sh",
+                "--bs",
+                "src/test/resources/scripts/othertest_scripts/build_SimpleTest1.sh",
+                "--logs",
+                "SimpleTest1_log.txt",
+                "--method-reduction"
+            ]
+        }
+    ]
+}
