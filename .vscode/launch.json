@@ -12,7 +12,7 @@
         },
         {
             "type": "java",
-            "name": "Runner",
+            "name": "SimpleTest1",
             "request": "launch",
             "mainClass": "cs.utd.soles.Runner",
             "projectName": "ViolationDeltaDebugger",
@@ -26,6 +26,25 @@
                 "src/test/resources/scripts/othertest_scripts/build_SimpleTest1.sh",
                 "--logs",
                 "SimpleTest1_log.txt",
+                "--method-reduction"
+            ]
+        },
+        {
+            "type": "java",
+            "name": "FlatClassesTest",
+            "request": "launch",
+            "mainClass": "cs.utd.soles.Runner",
+            "projectName": "ViolationDeltaDebugger",
+            "cwd": "${workspaceFolder}/ViolationDeltaDebugger",
+            "args": [
+                "--sources=src/test/resources/projects/othertest_projects/FlatClassesTest/src/main/java",
+                "--target=src/test/resources/projects/othertest_projects/FlatClassesTest/target/FlatClassesTest-1.0-SNAPSHOT-jar-with-dependencies.jar",
+                "--vs",
+                "src/test/resources/scripts/othertest_scripts/test_FlatClassesTest.sh",
+                "--bs",
+                "src/test/resources/scripts/othertest_scripts/build_FlatClassesTest.sh",
+                "--logs",
+                "FlatClassesTest_log.txt",
                 "--method-reduction"
             ]
         }

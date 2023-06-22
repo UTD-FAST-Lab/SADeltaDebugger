@@ -123,9 +123,9 @@ public class Runner {
 
         if (ar.methodReduction){
             System.out.println("\n\n\n\n" + methodReduction.findEntryPoint());
-
-
-
+            ArrayList<Object> requirements = new ArrayList<>();
+            requirements.add(bestCuList);
+            methodReduction.reduce(requirements);
 
         }
 
