@@ -3,12 +3,12 @@ package cs.utd.soles.reduction;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.jar.JarInputStream;
 
@@ -18,34 +18,29 @@ import org.javatuples.Pair;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.resolution.types.ResolvedType;
 
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.util.SanityException;
 import sootup.callgraph.CallGraph;
 import sootup.callgraph.CallGraphAlgorithm;
-import sootup.callgraph.ClassHierarchyAnalysisAlgorithm;
 import sootup.callgraph.RapidTypeAnalysisAlgorithm;
-import sootup.core.SourceTypeSpecifier;
 import sootup.core.inputlocation.AnalysisInputLocation;
-import sootup.core.inputlocation.DefaultSourceTypeSpecifier;
 import sootup.core.model.SootClass;
 import sootup.core.model.SourceType;
 import sootup.core.signatures.MethodSignature;
-import sootup.core.signatures.PackageName;
 import sootup.core.types.ClassType;
 import sootup.core.types.Type;
-import sootup.core.types.VoidType;
-import sootup.java.core.JavaSootClass;
 import sootup.java.core.JavaSootClassSource;
 import sootup.java.bytecode.inputlocation.JavaClassPathAnalysisInputLocation;
-import sootup.java.bytecode.inputlocation.PathBasedAnalysisInputLocation;
 import sootup.java.core.JavaIdentifierFactory;
 import sootup.java.core.JavaProject;
 import sootup.java.core.JavaProject.JavaProjectBuilder;
 import sootup.java.core.language.JavaLanguage;
-import sootup.java.core.types.JavaClassType;
 import sootup.java.core.views.JavaView;
 import sootup.java.sourcecode.inputlocation.JavaSourcePathAnalysisInputLocation;
 
@@ -118,6 +113,7 @@ public class MethodReduction implements Reduction {
         for (File file : programInfo.getArguments().sources) {
             if(file.getAbsolutePath() != null){
                 inputLoc = new JavaSourcePathAnalysisInputLocation(SourceType.Application, file.getAbsolutePath());
+                //maybe change to JavaClassPathAnalysisInputLocation with a jar file, should work about the same
                 
                 builder.addInputLocation(inputLoc);
             }
@@ -180,29 +176,33 @@ public class MethodReduction implements Reduction {
             }
         }
 
-        System.out.println("------------------------------");
         //need mapping from cg signature to AST method construct
-        //after that, need mapping of ast methods to their incoming calls and parents and whatnot
         for(MethodSignature signature : cg.getMethodSignatures()){
             for(MethodDeclaration declaration : methodDeclarations){
-                // Find a way to see if they represent the same method
-                
-                System.out.println("Checking cg " + signature.getName() + " vs ast " + declaration.getNameAsString());
-
+                // Check if they represent the same method, by checking class/package name, method name, and parameter types
                 if(
-                    declaration.getType().asString() == signature.getType().toString() &&
-                    true
+                    Objects.equals(declaration.getNameAsString(), signature.getName()) &&
+                    Objects.equals(
+                        ( (ClassOrInterfaceDeclaration) declaration.getParentNode().get()).getFullyQualifiedName().get(),
+                        signature.getDeclClassType().getFullyQualifiedName()
+                    )
                 ){
-                System.out.println("----------" + "\n" + declaration);
-                System.out.println("AST fully qualified class name");
-                System.out.println(( (ClassOrInterfaceDeclaration) declaration.getParentNode().get()).getFullyQualifiedName().get());
-                System.out.println(signature);
-                System.out.println("CG fully qualified class name");
-                System.out.println(signature.getDeclClassType().getFullyQualifiedName());
+                    Boolean allTypesMatch = true;
+                    NodeList<Parameter> parameters = declaration.getParameters();
+                    for(int i = 0; i<signature.getParameterTypes().size(); i++){
+                        Type cgType = signature.getParameterTypes().get(i);
+                        // resolving is required so that the ast type is fully qualified
+                        ResolvedType astType = parameters.get(i).getType().resolve();
+                        if(! Objects.equals(cgType.toString(), astType.describe())){
+                            allTypesMatch = false;
+                        }
+                    }
+                    if(allTypesMatch){
+                        cgToAST.put(signature, declaration);
+                    }
                 }
             }
         }
-        System.out.println("------------------------------");
 
 
     }

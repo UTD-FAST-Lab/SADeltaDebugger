@@ -2,7 +2,14 @@ package cs.utd.soles.setup;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.resolution.SymbolResolver;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+
 import cs.utd.soles.PerfTracker;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -80,6 +87,13 @@ public class SetupClass {
         setTestScriptFile(ar.vs);
         setBuildScriptFile(ar.bs);
         thisRunName=ar.runPrefix+this.rootProjectDirs.get(0).getAbsolutePath().replace(File.separator,"-");
+
+        //Add symbol solver for getting fully qualified types from AST
+        CombinedTypeSolver typeSolver = new CombinedTypeSolver();
+        typeSolver.add(new JarTypeSolver(this.arguments.target));
+        typeSolver.add(new ReflectionTypeSolver());
+        SymbolResolver resolver = new JavaSymbolSolver(typeSolver);
+        this.parserConfig.setSymbolResolver(resolver);
         return true;
     }
 
