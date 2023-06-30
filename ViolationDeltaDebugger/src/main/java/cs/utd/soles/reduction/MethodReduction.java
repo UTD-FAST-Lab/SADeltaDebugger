@@ -2,14 +2,19 @@ package cs.utd.soles.reduction;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.jar.JarInputStream;
 
 // import org.eclipse.core.internal.resources.Project;
@@ -22,8 +27,12 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
 
+import cs.utd.soles.ScriptRunner;
+import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.util.SanityException;
 import sootup.callgraph.CallGraph;
@@ -47,6 +56,9 @@ import sootup.java.sourcecode.inputlocation.JavaSourcePathAnalysisInputLocation;
 public class MethodReduction implements Reduction {
 
     CallGraph cg = null;
+    MethodSignature cgRoot = null;
+
+
 
     ArrayList<Pair<File,CompilationUnit>> oldCuList;
     ArrayList<Pair<File,CompilationUnit>> newCuList;
@@ -64,24 +76,238 @@ public class MethodReduction implements Reduction {
     public void reduce(ArrayList<Object> requireds) throws SanityException {
         ArrayList<Pair<File,CompilationUnit>> bestCuList = (ArrayList<Pair<File, CompilationUnit>>) requireds.get(0);
         oldCuList = bestCuList;
-        newCuList = bestCuList;
+        newCuList = new ArrayList<>();
+        for(Pair<File, CompilationUnit> cu : bestCuList){
+            newCuList.add(new Pair<File, CompilationUnit>(cu.getValue0(), cu.getValue1().clone()));
+        }
 
         this.createCG();
-        this.matchCGtoAST();
+        Map<MethodSignature, MethodDeclaration> cgToAST = this.matchCGtoAST(newCuList);
+        List<MethodCallExpr> methodCalls = findAllASTMethodCalls(newCuList);
+        Set<MethodSignature> visited = new TreeSet<MethodSignature>();
+        List<MethodSignature> current = new ArrayList<MethodSignature>();
+        for(MethodSignature method : cg.callsFrom(cgRoot)){
+            if(!visited.contains(method)){
+                visited.add(method);
+                current.add(method);
+            }
+        }
+        callGraphReduction(newCuList, visited, current);
     
     }
 
+    private void callGraphReduction(ArrayList<Pair<File, CompilationUnit>> cuList, Set<MethodSignature> visited, List<MethodSignature> current){
+        //sort current
+        List<MethodSignature> fullyRemoved = new ArrayList<>();
+        
+        for(int n=2; n <= current.size(); n = n*2 <= current.size() ? n*2 : current.size()){
+            List<List<MethodSignature>> chunks = new ArrayList<>();
+            List<MethodSignature> newChunk = null;
+            for(int i = 0; i < current.size(); i++){
+                if(i % n == 0){
+                    if(newChunk != null){
+                        chunks.add(newChunk);
+                    }
+                    newChunk = new ArrayList<>();
+                }
+                newChunk.add(current.get(i));
+            }
+            // Fill in last part of the chunks list
+            if(newChunk.size() != 0){chunks.add(newChunk);}
+
+            //try removing each chunk
+            for(List<MethodSignature> chunk : chunks){
+                Pair<Boolean, ArrayList<Pair<File, CompilationUnit>>> result = tryRemoval(cuList, chunk, fullyRemoved);
+                if(result.getValue0()){ //If failure is preserved
+                    //update cuList to new trimmed cuList
+                    cuList = result.getValue1();
+                    //add chunk to fully removed list
+                    for(MethodSignature method : chunk){
+                        fullyRemoved.add(method);
+                    }
+                }
+                
+            }
+        
+        
+        
+        
+        }
+    
+    
+    }
+
+
+    // Returns true if the changes should be made
+    private Pair<Boolean, ArrayList<Pair<File, CompilationUnit>>> tryRemoval(ArrayList<Pair<File, CompilationUnit>> cuList, List<MethodSignature> toRemove, List<MethodSignature> alreadyRemoved){
+        
+        //clone cuList
+        ArrayList<Pair<File, CompilationUnit>> newCuList = new ArrayList<>();
+        for(Pair<File, CompilationUnit> cu : cuList){
+            newCuList.add(new Pair<File,CompilationUnit>(cu.getValue0(), cu.getValue1().clone()));
+        }
+
+        //Generate cuList specific information
+        //It has to run many times but there isn't much of a way around that
+        Map<MethodSignature, MethodDeclaration> cgToAST = matchCGtoAST(newCuList);
+        List<MethodCallExpr> methodCallExprs = findAllASTMethodCalls(newCuList);
+
+        //remove the methods from the chunk
+        for(MethodSignature method : toRemove){
+            MethodDeclaration methodDeclaration = cgToAST.get(method);
+            if(methodDeclaration != null){
+                removeASTMethod(methodDeclaration, methodCallExprs);
+            }
+        }
+       
+        //Find orphan methods
+        Set<MethodSignature> allRemovedMethods = new HashSet<>(alreadyRemoved);
+        allRemovedMethods.addAll(toRemove);
+        List<MethodSignature> orphans = findOrphans(allRemovedMethods);
+        //Remove the orphan methods
+        for(MethodSignature method : orphans){
+            MethodDeclaration methodDeclaration = cgToAST.get(method);
+            if(methodDeclaration != null){
+                removeASTMethod(methodDeclaration, methodCallExprs);
+            }
+        }
+
+
+
+
+
+        return new Pair<Boolean, ArrayList<Pair<File, CompilationUnit>>>(true, cuList);
+    }
+
+
+    private void removeASTMethod(MethodDeclaration method, List<MethodCallExpr> methodCalls){
+        ResolvedMethodDeclaration resolvedMethod = method.resolve();
+        for(MethodCallExpr call : methodCalls){
+            ResolvedMethodDeclaration callMethod = call.resolve(); //beware
+            if(resolvedMethod == callMethod){
+                System.out.println(resolvedMethod + "\n" + call + "\n" + callMethod);
+                ((Node) resolvedMethod).remove();
+            }
+        }
+    }
+
+
+    private List<MethodCallExpr> findAllASTMethodCalls(ArrayList<Pair<File, CompilationUnit>> cuList){
+        // Assemble AST methods into a nice list 
+        List<MethodCallExpr> methodCalls = new ArrayList<>();
+        Queue<Node> queue = new LinkedList<>();
+        for(Pair<File,CompilationUnit> cu : cuList){
+            queue.add(cu.getValue1());
+        }
+        while(!queue.isEmpty()){
+            Node cur = queue.remove();
+
+            if( ! (cur instanceof MethodCallExpr)){
+                for(Node children : cur.getChildNodes()){
+                    queue.add(children);
+                }
+            } else{
+                methodCalls.add((MethodCallExpr) cur); //make return instead
+            }
+        }
+        return methodCalls;
+    }
+
+    private List<MethodSignature> findOrphans(Set<MethodSignature> removedMethods){
+        List<MethodSignature> orphans = new ArrayList<>();
+
+        //get list of reachable methods with graph traversal
+        List<MethodSignature> reachable = new ArrayList<>();
+        Queue<MethodSignature> queue = new LinkedList<>();
+        for(MethodSignature method :  cg.callsFrom(cgRoot)){
+            if(!removedMethods.contains(method)){
+                queue.add(method);
+                reachable.add(method);
+            }
+        }
+        while(queue.size() != 0){
+            MethodSignature cur = queue.poll();
+            for(MethodSignature method : cg.callsFrom(cur))
+            if(!removedMethods.contains(method)){
+                queue.add(method);
+                reachable.add(method);
+            }
+        }
+
+        // If method is not reachable, its an orphan
+        for(MethodSignature method : cg.getMethodSignatures()){
+            if(!reachable.contains(method) && !removedMethods.contains(method)){
+                orphans.add(method);
+            }
+        }
+
+        return orphans;
+    }
+
+
+    @Override
     public int testBuild() {
-        return 0;
+        try {
+            return ScriptRunner.runBuildScript(programInfo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } return -1;
     }
 
+    @Override
     public int testViolation() {
-        return 0;
+        try {
+            return ScriptRunner.runTestScript(programInfo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } return -1;
     }
 
-    public boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList, int unitP, CompilationUnit cu)
-            throws SanityException {
-        return false;
+    @Override
+    public boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList, int cupos, CompilationUnit cu) {
+        try {
+            ProgramWriter.saveCompilationUnits(newCuList,cupos,null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //always the same after writing
+        //logging stuff needs to be made
+        programInfo.getPerfTracker().startTimer("compile_timer");
+        if(testBuild() != 0) {
+            programInfo.getPerfTracker().stopTimer("compile_timer");
+            programInfo.getPerfTracker().addTime("time_bad_compile_runs_binary",
+                    programInfo.getPerfTracker().getTimeForTimer("compile_timer"));
+            programInfo.getPerfTracker().resetTimer("compile_timer");
+            programInfo.getPerfTracker().addCount("bad_compile_runs_binary",1);
+
+            return false;
+        }
+        programInfo.getPerfTracker().addCount("good_compile_runs_binary",1);
+        programInfo.getPerfTracker().stopTimer("compile_timer");
+        programInfo.getPerfTracker().addTime("time_good_compile_runs_binary",
+                programInfo.getPerfTracker().getTimeForTimer("compile_timer"));
+        programInfo.getPerfTracker().resetTimer("compile_timer");
+
+        programInfo.getPerfTracker().startTimer("recreate_timer");
+        if(testViolation() != 0) {
+            programInfo.getPerfTracker().addCount("bad_recreate_runs_binary", 1);
+            programInfo.getPerfTracker().stopTimer("recreate_timer");
+            programInfo.getPerfTracker().addTime("time_bad_recreate_runs_binary",
+                    programInfo.getPerfTracker().getTimeForTimer("recreate_timer"));
+            programInfo.getPerfTracker().resetTimer("recreate_timer");
+            return false;
+        }
+        programInfo.getPerfTracker().stopTimer("recreate_timer");
+        programInfo.getPerfTracker().addTime("time_good_recreate_runs_binary",
+                programInfo.getPerfTracker().getTimeForTimer("recreate_timer"));
+        programInfo.getPerfTracker().resetTimer("recreate_timer");
+        programInfo.getPerfTracker().addCount("good_recreate_runs_binary",1);
+        return true;
     }
 
     public String findEntryPoint() {
@@ -112,8 +338,9 @@ public class MethodReduction implements Reduction {
         AnalysisInputLocation inputLoc = null;
         for (File file : programInfo.getArguments().sources) {
             if(file.getAbsolutePath() != null){
-                inputLoc = new JavaSourcePathAnalysisInputLocation(SourceType.Application, file.getAbsolutePath());
                 //maybe change to JavaClassPathAnalysisInputLocation with a jar file, should work about the same
+                //inputLoc = new JavaSourcePathAnalysisInputLocation(SourceType.Application, file.getAbsolutePath());
+                inputLoc = new JavaClassPathAnalysisInputLocation(programInfo.getArguments().target.getAbsolutePath());
                 
                 builder.addInputLocation(inputLoc);
             }
@@ -123,7 +350,7 @@ public class MethodReduction implements Reduction {
         
         builder.addInputLocation(
             new JavaClassPathAnalysisInputLocation(
-                System.getProperty("java.home") + "/lib/jrt-fs.jar"));
+                System.getProperty("java.home") + "/lib/jrt-fs.jar")); //TODO make less fragile, currently depends on exact runtime version
         JavaProject project = builder.build();
         
 
@@ -152,28 +379,26 @@ public class MethodReduction implements Reduction {
         System.out.println("\n\n####################\n\n" + cg + "\n\n####################\n\n");
     }
 
-
-    //Method Declaration is null if method has already been removed from the ast in an earlier pass
-    Map<MethodSignature, MethodDeclaration> cgToAST = new HashMap<>();
-    private void matchCGtoAST(){
-     
+    
+    private Map<MethodSignature, MethodDeclaration> matchCGtoAST(ArrayList<Pair<File,CompilationUnit>> cuList){
+        Map<MethodSignature, MethodDeclaration> cgToAST = new HashMap<>();
 
         // Assemble AST methods into a nice list 
         List<MethodDeclaration> methodDeclarations = new ArrayList<>();
         Queue<Node> queue = new LinkedList<>();
-        for(Pair<File,CompilationUnit> cu : newCuList){
+        for(Pair<File,CompilationUnit> cu : cuList){
             queue.add(cu.getValue1());
         }
         while(!queue.isEmpty()){
             Node cur = queue.remove();
 
-            if( ! (cur instanceof MethodDeclaration)){
-                for(Node children : cur.getChildNodes()){
-                    queue.add(children);
-                }
-            } else{
+            if((cur instanceof MethodDeclaration)){
                 methodDeclarations.add((MethodDeclaration) cur);
             }
+            for(Node children : cur.getChildNodes()){
+                queue.add(children);
+            }
+        
         }
 
         //need mapping from cg signature to AST method construct
@@ -192,7 +417,7 @@ public class MethodReduction implements Reduction {
                     for(int i = 0; i<signature.getParameterTypes().size(); i++){
                         Type cgType = signature.getParameterTypes().get(i);
                         // resolving is required so that the ast type is fully qualified
-                        ResolvedType astType = parameters.get(i).getType().resolve();
+                        ResolvedType astType = parameters.get(i).getType().resolve(); //TODO maybe dont use symbol solver
                         if(! Objects.equals(cgType.toString(), astType.describe())){
                             allTypesMatch = false;
                         }
@@ -203,7 +428,7 @@ public class MethodReduction implements Reduction {
                 }
             }
         }
-
+        return cgToAST;
 
     }
 
