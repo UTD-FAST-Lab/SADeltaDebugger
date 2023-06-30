@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.test</groupId>
-    <artifactId>FlatClassesTest</artifactId>
+    <artifactId>cgTest</artifactId>
     <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
@@ -25,7 +25,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>MainFlatClassesTest</mainClass>
+                            <mainClass>cgTest</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -49,7 +49,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>MainFlatClassesTest</mainClass>
+                            <mainClass>cgTest</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

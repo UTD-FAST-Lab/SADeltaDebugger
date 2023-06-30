@@ -1,4 +1,4 @@
-public class MainFlatClassesTest {
+public class cgTest {
 
     public static void main(String[] args) {
         cs.utd.soles.blob.Blob u = new cs.utd.soles.blob.Blob(7, "1");
