@@ -27,7 +27,11 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.resolution.UnsolvedSymbolException;
+import com.github.javaparser.resolution.declarations.ResolvedConstructorDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
 
@@ -82,9 +86,7 @@ public class MethodReduction implements Reduction {
         }
 
         this.createCG();
-        Map<MethodSignature, MethodDeclaration> cgToAST = this.matchCGtoAST(newCuList);
-        List<MethodCallExpr> methodCalls = findAllASTMethodCalls(newCuList);
-        Set<MethodSignature> visited = new TreeSet<MethodSignature>();
+        Set<MethodSignature> visited = new HashSet<MethodSignature>();
         List<MethodSignature> current = new ArrayList<MethodSignature>();
         for(MethodSignature method : cg.callsFrom(cgRoot)){
             if(!visited.contains(method)){
@@ -92,19 +94,20 @@ public class MethodReduction implements Reduction {
                 current.add(method);
             }
         }
-        callGraphReduction(newCuList, visited, current);
+        List<MethodSignature> fullyRemoved = new ArrayList<>();
+        callGraphReduction(newCuList, visited, current, fullyRemoved);
     
     }
 
-    private void callGraphReduction(ArrayList<Pair<File, CompilationUnit>> cuList, Set<MethodSignature> visited, List<MethodSignature> current){
+    private void callGraphReduction(ArrayList<Pair<File, CompilationUnit>> cuList, Set<MethodSignature> visited, List<MethodSignature> current, List<MethodSignature> fullyRemoved){
         //sort current
-        List<MethodSignature> fullyRemoved = new ArrayList<>();
         
-        for(int n=2; n <= current.size(); n = n*2 <= current.size() ? n*2 : current.size()){
+        for(int n=2; n < current.size(); n = n*2 <= current.size() ? n*2 : current.size()){
             List<List<MethodSignature>> chunks = new ArrayList<>();
             List<MethodSignature> newChunk = null;
+            int chunkSize = current.size() / n;
             for(int i = 0; i < current.size(); i++){
-                if(i % n == 0){
+                if(i % chunkSize == 0){
                     if(newChunk != null){
                         chunks.add(newChunk);
                     }
@@ -125,16 +128,25 @@ public class MethodReduction implements Reduction {
                     for(MethodSignature method : chunk){
                         fullyRemoved.add(method);
                     }
-                }
-                
+                }  
+                for(Pair<File, CompilationUnit> cu : cuList){
+                    System.out.println(cu);
+                } 
             }
-        
-        
-        
-        
         }
-    
-    
+        //Do next layer
+        List<MethodSignature> nextCurrent = new ArrayList<>();
+        for(MethodSignature nextMethod : current){
+            if (!fullyRemoved.contains(nextMethod)){
+                for(MethodSignature child : cg.callsFrom(nextMethod)){
+                    if(!visited.contains(child)){
+                        visited.add(child);
+                        nextCurrent.add(child);
+                    }
+                }
+            }
+        }
+        callGraphReduction(cuList, visited, nextCurrent, fullyRemoved);
     }
 
 
@@ -156,7 +168,7 @@ public class MethodReduction implements Reduction {
         for(MethodSignature method : toRemove){
             MethodDeclaration methodDeclaration = cgToAST.get(method);
             if(methodDeclaration != null){
-                removeASTMethod(methodDeclaration, methodCallExprs);
+                removeASTMethodCall(methodDeclaration, methodCallExprs);
             }
         }
        
@@ -168,27 +180,66 @@ public class MethodReduction implements Reduction {
         for(MethodSignature method : orphans){
             MethodDeclaration methodDeclaration = cgToAST.get(method);
             if(methodDeclaration != null){
-                removeASTMethod(methodDeclaration, methodCallExprs);
+                removeASTMethodCall(methodDeclaration, methodCallExprs);
             }
         }
+        
 
-
-
-
-
-        return new Pair<Boolean, ArrayList<Pair<File, CompilationUnit>>>(true, cuList);
+        Pair<Boolean, ArrayList<Pair<File, CompilationUnit>>> returnValue = null;
+        if(testChange(newCuList, -1, null)){
+            returnValue = new Pair<>(true, newCuList);
+        } else{
+            returnValue = new Pair<>(false, cuList);
+        }
+        return returnValue;
     }
 
 
-    private void removeASTMethod(MethodDeclaration method, List<MethodCallExpr> methodCalls){
-        ResolvedMethodDeclaration resolvedMethod = method.resolve();
-        for(MethodCallExpr call : methodCalls){
-            ResolvedMethodDeclaration callMethod = call.resolve(); //beware
-            if(resolvedMethod == callMethod){
-                System.out.println(resolvedMethod + "\n" + call + "\n" + callMethod);
-                ((Node) resolvedMethod).remove();
+    private void removeASTMethodCall(MethodDeclaration method, List<MethodCallExpr> methodCalls){
+        try{
+            ResolvedMethodDeclaration resolvedMethod = method.resolve();
+            for(MethodCallExpr call : methodCalls){
+                ResolvedMethodDeclaration callMethod = call.resolve(); //beware
+                if(Objects.equals(callMethod.getQualifiedSignature(), resolvedMethod.getQualifiedSignature())){
+                    System.out.println("####\n" + resolvedMethod + "\n" + call + "\n" + callMethod + "####");
+                    // If assignment, remove the assignment part but not the declaration part
+                    // For example, int i = methodcall(); turns into int i;
+                    // Java will initialize with whatever default null equivelent value is right for the type
+                    if(call.getParentNode().get() instanceof VariableDeclarator){
+                        ( (VariableDeclarator) call.getParentNode().get()).removeInitializer();
+                    }
+                    call.remove(); //replace with something
+
+                }
             }
         }
+        catch(IllegalStateException e){
+            System.out.println(e);
+        }
+        catch(UnsolvedSymbolException e){
+            System.out.println("\033[31m" + e + "\033[0m]"); //make it red because its not a good exception to have
+        }
+        method.remove();
+    }
+
+    //TODO discuss if this should be implemented
+    private void removeASTObjectCreation(MethodDeclaration method, List<ObjectCreationExpr> calls){
+        // ResolvedMethodDeclaration resolvedMethod = method.resolve();
+        // for(ObjectCreationExpr call : calls){
+        //     ResolvedConstructorDeclaration callMethod = call.resolve();
+        //     if(Objects.equals(callMethod.getQualifiedSignature(), resolvedMethod.getQualifiedSignature())){ //TODO investigate matching code
+        //         System.out.println(resolvedMethod + "\n" + call + "\n" + callMethod);
+        //         // If assignment, remove the assignment part but not the declaration part
+        //         // For example, int i = methodcall(); turns into int i;
+        //         // Java will initialize with whatever default null equivelent value is right for the type
+        //         if(call.getParentNode().get() instanceof VariableDeclarator){ //TODO fix to allow nesting
+        //             ( (VariableDeclarator) call.getParentNode().get()).removeInitializer();
+        //         }
+        //         call.remove(); //replace with something
+
+        //     }
+        // }
+        method.remove();
     }
 
 
@@ -207,17 +258,19 @@ public class MethodReduction implements Reduction {
                     queue.add(children);
                 }
             } else{
-                methodCalls.add((MethodCallExpr) cur); //make return instead
+                methodCalls.add((MethodCallExpr) cur);
             }
         }
         return methodCalls;
     }
+
 
     private List<MethodSignature> findOrphans(Set<MethodSignature> removedMethods){
         List<MethodSignature> orphans = new ArrayList<>();
 
         //get list of reachable methods with graph traversal
         List<MethodSignature> reachable = new ArrayList<>();
+        reachable.add(cgRoot);
         Queue<MethodSignature> queue = new LinkedList<>();
         for(MethodSignature method :  cg.callsFrom(cgRoot)){
             if(!removedMethods.contains(method)){
@@ -346,22 +399,17 @@ public class MethodReduction implements Reduction {
             }
         }
 
-
-        
         builder.addInputLocation(
             new JavaClassPathAnalysisInputLocation(
                 System.getProperty("java.home") + "/lib/jrt-fs.jar")); //TODO make less fragile, currently depends on exact runtime version
         JavaProject project = builder.build();
         
-
         // Create the view
         JavaView view = project.createView();
 
         String entryPoint = findEntryPoint();
         System.out.println(entryPoint);
         ClassType classType = project.getIdentifierFactory().getClassType(entryPoint);
-
-        SootClass<JavaSootClassSource> sootClass = (SootClass<JavaSootClassSource>) view.getClass(classType).get();
 
         MethodSignature entryMethodSignature = JavaIdentifierFactory.getInstance()
             .getMethodSignature(
@@ -376,7 +424,8 @@ public class MethodReduction implements Reduction {
         //CallGraphAlgorithm cga_builder = new ClassHierarchyAnalysisAlgorithm(view, view.getTypeHierarchy());
         CallGraphAlgorithm cga_builder = new RapidTypeAnalysisAlgorithm(view);
         cg = cga_builder.initialize(Collections.singletonList(entryMethodSignature));
-        System.out.println("\n\n####################\n\n" + cg + "\n\n####################\n\n");
+        cgRoot = entryMethodSignature;
+        System.out.println("\n\n####################\n\n" + cg + "\n\n####################\n");
     }
 
     
