@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.JarInputStream;
 
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 // import org.eclipse.core.internal.resources.Project;
 // import org.eclipse.jdt.internal.core.JavaProject;
 import org.javatuples.Pair;
@@ -30,6 +31,7 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedConstructorDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
@@ -64,7 +66,7 @@ public class MethodReduction implements Reduction {
 
 
 
-    ArrayList<Pair<File,CompilationUnit>> oldCuList;
+    ArrayList<Pair<File,CompilationUnit>> finalCuList;
     ArrayList<Pair<File,CompilationUnit>> newCuList;
 
     long timeoutTime;
@@ -79,7 +81,6 @@ public class MethodReduction implements Reduction {
 
     public void reduce(ArrayList<Object> requireds) throws SanityException {
         ArrayList<Pair<File,CompilationUnit>> bestCuList = (ArrayList<Pair<File, CompilationUnit>>) requireds.get(0);
-        oldCuList = bestCuList;
         newCuList = new ArrayList<>();
         for(Pair<File, CompilationUnit> cu : bestCuList){
             newCuList.add(new Pair<File, CompilationUnit>(cu.getValue0(), cu.getValue1().clone()));
@@ -96,12 +97,16 @@ public class MethodReduction implements Reduction {
         }
         List<MethodSignature> fullyRemoved = new ArrayList<>();
         callGraphReduction(newCuList, visited, current, fullyRemoved);
-    
+        
+        // get final cu list into main program by cannabalizing bestCuList's reference
+        bestCuList.clear();
+        for(Pair<File, CompilationUnit> cu : finalCuList){
+            bestCuList.add(cu);
+        }
+
     }
 
-    private void callGraphReduction(ArrayList<Pair<File, CompilationUnit>> cuList, Set<MethodSignature> visited, List<MethodSignature> current, List<MethodSignature> fullyRemoved){
-        //sort current
-        
+    private void callGraphReduction(ArrayList<Pair<File, CompilationUnit>> cuList, Set<MethodSignature> visited, List<MethodSignature> current, List<MethodSignature> fullyRemoved){       
         for(int n=2; n < current.size(); n = n*2 <= current.size() ? n*2 : current.size()){
             List<List<MethodSignature>> chunks = new ArrayList<>();
             List<MethodSignature> newChunk = null;
@@ -146,7 +151,13 @@ public class MethodReduction implements Reduction {
                 }
             }
         }
-        callGraphReduction(cuList, visited, nextCurrent, fullyRemoved);
+        finalCuList = cuList;
+        if(nextCurrent.size() != 0){
+            callGraphReduction(cuList, visited, nextCurrent, fullyRemoved);
+        }
+        else{
+            return;
+        }
     }
 
 
@@ -208,7 +219,17 @@ public class MethodReduction implements Reduction {
                     if(call.getParentNode().get() instanceof VariableDeclarator){
                         ( (VariableDeclarator) call.getParentNode().get()).removeInitializer();
                     }
-                    call.remove(); //replace with something
+                    // if(call.getParentNode().get() instanceof ExpressionStmt){
+                    //     call.remove();
+                    // }
+                    else{
+                        //sometimes the call is a required property of the parent and so cannot be removed
+                        call.removeForced();
+                        // Node remove = call;
+                        // while(!remove.remove()){
+                        //     remove = remove.getParentNode().get();
+                        // }
+                    }
 
                 }
             }
