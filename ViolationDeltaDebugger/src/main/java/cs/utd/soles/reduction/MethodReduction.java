@@ -3,7 +3,6 @@ package cs.utd.soles.reduction;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,12 +13,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.jar.JarInputStream;
 
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-// import org.eclipse.core.internal.resources.Project;
-// import org.eclipse.jdt.internal.core.JavaProject;
+
 import org.javatuples.Pair;
 
 import com.github.javaparser.ast.CompilationUnit;
@@ -31,9 +27,7 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
-import com.github.javaparser.resolution.declarations.ResolvedConstructorDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
 
@@ -45,27 +39,21 @@ import sootup.callgraph.CallGraph;
 import sootup.callgraph.CallGraphAlgorithm;
 import sootup.callgraph.RapidTypeAnalysisAlgorithm;
 import sootup.core.inputlocation.AnalysisInputLocation;
-import sootup.core.model.SootClass;
-import sootup.core.model.SourceType;
 import sootup.core.signatures.MethodSignature;
 import sootup.core.types.ClassType;
 import sootup.core.types.Type;
-import sootup.java.core.JavaSootClassSource;
 import sootup.java.bytecode.inputlocation.JavaClassPathAnalysisInputLocation;
 import sootup.java.core.JavaIdentifierFactory;
 import sootup.java.core.JavaProject;
 import sootup.java.core.JavaProject.JavaProjectBuilder;
 import sootup.java.core.language.JavaLanguage;
 import sootup.java.core.views.JavaView;
-import sootup.java.sourcecode.inputlocation.JavaSourcePathAnalysisInputLocation;
 
 public class MethodReduction implements Reduction {
 
     CallGraph cg = null;
     MethodSignature cgRoot = null;
-
-
-
+    
     ArrayList<Pair<File,CompilationUnit>> finalCuList;
     ArrayList<Pair<File,CompilationUnit>> newCuList;
 
@@ -90,7 +78,7 @@ public class MethodReduction implements Reduction {
         Set<MethodSignature> visited = new HashSet<MethodSignature>();
         List<MethodSignature> current = new ArrayList<MethodSignature>();
         for(MethodSignature method : cg.callsFrom(cgRoot)){
-            if(!visited.contains(method)){
+            if(!visited.contains(method) && !method.getName().equals("<init>")){
                 visited.add(method);
                 current.add(method);
             }
@@ -107,7 +95,7 @@ public class MethodReduction implements Reduction {
     }
 
     private void callGraphReduction(ArrayList<Pair<File, CompilationUnit>> cuList, Set<MethodSignature> visited, List<MethodSignature> current, List<MethodSignature> fullyRemoved){       
-        for(int n=2; n < current.size(); n = n*2 <= current.size() ? n*2 : current.size()){
+        for(int n=1; n <= current.size(); n = (n*2 <= current.size()) ? n*2 : current.size()){
             List<List<MethodSignature>> chunks = new ArrayList<>();
             List<MethodSignature> newChunk = null;
             int chunkSize = current.size() / n;
@@ -137,6 +125,9 @@ public class MethodReduction implements Reduction {
                 for(Pair<File, CompilationUnit> cu : cuList){
                     System.out.println(cu);
                 } 
+            }
+            if(n == current.size()){
+                break; //explicit break here after last run to avoid making the for loop into a programming crime
             }
         }
         //Do next layer
@@ -168,6 +159,15 @@ public class MethodReduction implements Reduction {
         ArrayList<Pair<File, CompilationUnit>> newCuList = new ArrayList<>();
         for(Pair<File, CompilationUnit> cu : cuList){
             newCuList.add(new Pair<File,CompilationUnit>(cu.getValue0(), cu.getValue1().clone()));
+        }
+
+        // compile the current program so symbol solver has a correct jar file
+        // Could be optimized by just copying away the jar file before a test, and copying back if test fails
+        try{
+            ProgramWriter.saveCompilationUnits(newCuList,-1,null);
+        }
+        catch(IOException e){
+            e.printStackTrace();
         }
 
         //Generate cuList specific information
@@ -210,28 +210,31 @@ public class MethodReduction implements Reduction {
         try{
             ResolvedMethodDeclaration resolvedMethod = method.resolve();
             for(MethodCallExpr call : methodCalls){
-                ResolvedMethodDeclaration callMethod = call.resolve(); //beware
-                if(Objects.equals(callMethod.getQualifiedSignature(), resolvedMethod.getQualifiedSignature())){
-                    System.out.println("####\n" + resolvedMethod + "\n" + call + "\n" + callMethod + "####");
-                    // If assignment, remove the assignment part but not the declaration part
-                    // For example, int i = methodcall(); turns into int i;
-                    // Java will initialize with whatever default null equivelent value is right for the type
-                    if(call.getParentNode().get() instanceof VariableDeclarator){
-                        ( (VariableDeclarator) call.getParentNode().get()).removeInitializer();
-                    }
-                    // if(call.getParentNode().get() instanceof ExpressionStmt){
-                    //     call.remove();
-                    // }
-                    else{
-                        //sometimes the call is a required property of the parent and so cannot be removed
-                        call.removeForced();
-                        // Node remove = call;
-                        // while(!remove.remove()){
-                        //     remove = remove.getParentNode().get();
+                try{
+                    ResolvedMethodDeclaration callMethod = call.resolve(); //beware
+                    if(Objects.equals(callMethod.getQualifiedSignature(), resolvedMethod.getQualifiedSignature())){
+                        System.out.println("####\n" + resolvedMethod + "\n" + call + "\n" + callMethod + "####");
+                        // If assignment, remove the assignment part but not the declaration part
+                        // For example, int i = methodcall(); turns into int i;
+                        // Java will initialize with whatever default null equivelent value is right for the type
+                        if(call.getParentNode().get() instanceof VariableDeclarator){
+                            ( (VariableDeclarator) call.getParentNode().get()).removeInitializer();
+                        }
+                        // if(call.getParentNode().get() instanceof ExpressionStmt){
+                        //     call.remove();
                         // }
+                        else{
+                            //sometimes the call is a required property of the parent and so cannot be removed
+                            call.removeForced();
+                            // Node remove = call;
+                            // while(!remove.remove()){
+                            //     remove = remove.getParentNode().get();
+                            // }
+                        }
+    
                     }
-
                 }
+                catch(UnsolvedSymbolException e){;}//This typically means that the call expression refers to an already remved            
             }
         }
         catch(IllegalStateException e){
@@ -346,6 +349,8 @@ public class MethodReduction implements Reduction {
         try {
             ProgramWriter.saveCompilationUnits(newCuList,cupos,null);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e){
             e.printStackTrace();
         }
 
@@ -487,7 +492,7 @@ public class MethodReduction implements Reduction {
                     for(int i = 0; i<signature.getParameterTypes().size(); i++){
                         Type cgType = signature.getParameterTypes().get(i);
                         // resolving is required so that the ast type is fully qualified
-                        ResolvedType astType = parameters.get(i).getType().resolve(); //TODO maybe dont use symbol solver
+                        ResolvedType astType = parameters.get(i).getType().resolve();
                         if(! Objects.equals(cgType.toString(), astType.describe())){
                             allTypesMatch = false;
                         }
