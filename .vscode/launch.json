@@ -31,20 +31,39 @@
         },
         {
             "type": "java",
-            "name": "FlatClassesTest",
+            "name": "cgTest",
             "request": "launch",
             "mainClass": "cs.utd.soles.Runner",
             "projectName": "ViolationDeltaDebugger",
             "cwd": "${workspaceFolder}/ViolationDeltaDebugger",
             "args": [
-                "--sources=src/test/resources/projects/othertest_projects/FlatClassesTest/src/main/java",
-                "--target=src/test/resources/projects/othertest_projects/FlatClassesTest/target/FlatClassesTest-1.0-SNAPSHOT-jar-with-dependencies.jar",
+                "--sources=src/test/resources/projects/othertest_projects/cgTest/src/main/java",
+                "--target=src/test/resources/projects/othertest_projects/cgTest/target/cgTest-1.0-SNAPSHOT-jar-with-dependencies.jar",
                 "--vs",
-                "src/test/resources/scripts/othertest_scripts/test_FlatClassesTest.sh",
+                "src/test/resources/scripts/othertest_scripts/test_cgTest.sh",
                 "--bs",
-                "src/test/resources/scripts/othertest_scripts/build_FlatClassesTest.sh",
+                "src/test/resources/scripts/othertest_scripts/build_cgTest.sh",
                 "--logs",
-                "FlatClassesTest_log.txt",
+                "cgTest_log.txt",
+                "--method-reduction"
+            ]
+        },
+        {
+            "type": "java",
+            "name": "cgDepthTest",
+            "request": "launch",
+            "mainClass": "cs.utd.soles.Runner",
+            "projectName": "ViolationDeltaDebugger",
+            "cwd": "${workspaceFolder}/ViolationDeltaDebugger",
+            "args": [
+                "--sources=src/test/resources/projects/othertest_projects/cgDepthTest/src/main/java",
+                "--target=src/test/resources/projects/othertest_projects/cgDepthTest/target/cgDepthTest-1.0-SNAPSHOT-jar-with-dependencies.jar",
+                "--vs",
+                "src/test/resources/scripts/othertest_scripts/test_cgDepthTest.sh",
+                "--bs",
+                "src/test/resources/scripts/othertest_scripts/build_cgDepthTest.sh",
+                "--logs",
+                "cgDepthTest_log.txt",
                 "--method-reduction"
             ]
         }

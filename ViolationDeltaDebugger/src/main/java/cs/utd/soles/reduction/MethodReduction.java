@@ -18,6 +18,7 @@ import java.util.jar.JarInputStream;
 
 import org.javatuples.Pair;
 
+import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
@@ -26,6 +27,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NullLiteralExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
@@ -161,8 +163,7 @@ public class MethodReduction implements Reduction {
             newCuList.add(new Pair<File,CompilationUnit>(cu.getValue0(), cu.getValue1().clone()));
         }
 
-        // compile the current program so symbol solver has a correct jar file
-        // Could be optimized by just copying away the jar file before a test, and copying back if test fails
+        // Write back current source to not confuse symbol solver
         try{
             ProgramWriter.saveCompilationUnits(newCuList,-1,null);
         }
@@ -218,7 +219,10 @@ public class MethodReduction implements Reduction {
                         // For example, int i = methodcall(); turns into int i;
                         // Java will initialize with whatever default null equivelent value is right for the type
                         if(call.getParentNode().get() instanceof VariableDeclarator){
-                            ( (VariableDeclarator) call.getParentNode().get()).removeInitializer();
+                            VariableDeclarator declarator = (VariableDeclarator) call.getParentNode().get();
+                            declarator.removeInitializer();
+                            // null will get implicitly cast to whatever type
+                            declarator.setInitializer(new NullLiteralExpr());
                         }
                         // if(call.getParentNode().get() instanceof ExpressionStmt){
                         //     call.remove();
