@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.jar.JarInputStream;
 
 
@@ -480,16 +481,36 @@ public class MethodReduction implements Reduction {
         
         }
 
+
+        // sootup puts in $ when javaparser puts a . sometimes
+        // custom comparison function to fix this
+        Function<Pair<String,String>, Boolean> compareClassNames = (Pair<String, String> pair) -> {
+            String a = pair.getValue0();
+            String b = pair.getValue1();
+            if(a.length() != b.length()){ return false;}
+            for(int i = 0; i < a.length(); i++){
+                if(
+                    !(a.charAt(i) == b.charAt(i)
+                    ||
+                    a.charAt(i) == '$' && b.charAt(i) == '.'
+                    ||
+                    a.charAt(i) == '.' && b.charAt(i) == '$'
+                    )
+                ){return false;}
+            }
+            return true;
+        };
+
         //need mapping from cg signature to AST method construct
         for(MethodSignature signature : cg.getMethodSignatures()){
             for(MethodDeclaration declaration : methodDeclarations){
                 // Check if they represent the same method, by checking class/package name, method name, and parameter types
                 if(
                     Objects.equals(declaration.getNameAsString(), signature.getName()) &&
-                    Objects.equals(
+                    compareClassNames.apply(new Pair<String, String>(
                         ( (ClassOrInterfaceDeclaration) declaration.getParentNode().get()).getFullyQualifiedName().get(),
                         signature.getDeclClassType().getFullyQualifiedName()
-                    )
+                    ))
                 ){
                     Boolean allTypesMatch = true;
                     NodeList<Parameter> parameters = declaration.getParameters();
