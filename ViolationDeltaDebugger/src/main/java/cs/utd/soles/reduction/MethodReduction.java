@@ -146,7 +146,7 @@ public class MethodReduction implements Reduction {
             }
         }
         finalCuList = cuList;
-        if(nextCurrent.size() != 0){
+        if(nextCurrent.size() != 0 && System.currentTimeMillis() < timeoutTime){
             callGraphReduction(cuList, visited, nextCurrent, fullyRemoved);
         }
         else{
