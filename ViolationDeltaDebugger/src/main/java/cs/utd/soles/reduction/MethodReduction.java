@@ -310,7 +310,7 @@ public class MethodReduction implements Reduction {
         while(queue.size() != 0){
             MethodSignature cur = queue.poll();
             for(MethodSignature method : cg.callsFrom(cur))
-            if(!removedMethods.contains(method)){
+            if(!removedMethods.contains(method) && !reachable.contains(method)){
                 queue.add(method);
                 reachable.add(method);
             }
