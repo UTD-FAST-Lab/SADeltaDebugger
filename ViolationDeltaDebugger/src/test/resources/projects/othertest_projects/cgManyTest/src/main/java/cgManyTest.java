@@ -1,4 +1,4 @@
-public class cgDepthTest {
+public class cgManyTest {
 
     public static void main(String[] args) {
         A();
@@ -6,20 +6,23 @@ public class cgDepthTest {
 
     public static void A() {
         B();
+        F();
     }
 
     public static void B() {
-        // failure
-        System.out.println(10 / 0);
+        
         C();
+        F();
     }
 
     public static void C() {
         D();
+        F();
     }
 
     public static void D() {
         E();
+        F();
     }
 
     public static void E() {
@@ -27,7 +30,7 @@ public class cgDepthTest {
     }
 
     public static void F() {
-        System.out.println("reached F");
-        return;
+        // failure
+        System.out.println(10 / 0);
     }
 }

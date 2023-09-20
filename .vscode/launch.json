@@ -66,6 +66,44 @@
                 "cgDepthTest_log.txt",
                 "--method-reduction"
             ]
+        },
+        {
+            "type": "java",
+            "name": "cgRecursionTest",
+            "request": "launch",
+            "mainClass": "cs.utd.soles.Runner",
+            "projectName": "ViolationDeltaDebugger",
+            "cwd": "${workspaceFolder}/ViolationDeltaDebugger",
+            "args": [
+                "--sources=src/test/resources/projects/othertest_projects/cgRecursionTest/src/main/java",
+                "--target=src/test/resources/projects/othertest_projects/cgRecursionTest/target/cgRecursionTest-1.0-SNAPSHOT-jar-with-dependencies.jar",
+                "--vs",
+                "src/test/resources/scripts/othertest_scripts/test_cgRecursionTest.sh",
+                "--bs",
+                "src/test/resources/scripts/othertest_scripts/build_cgRecursionTest.sh",
+                "--logs",
+                "cgRecursionTest_log.txt",
+                "--method-reduction"
+            ]
+        },
+        {
+            "type": "java",
+            "name": "cgManyTest",
+            "request": "launch",
+            "mainClass": "cs.utd.soles.Runner",
+            "projectName": "ViolationDeltaDebugger",
+            "cwd": "${workspaceFolder}/ViolationDeltaDebugger",
+            "args": [
+                "--sources=src/test/resources/projects/othertest_projects/cgManyTest/src/main/java",
+                "--target=src/test/resources/projects/othertest_projects/cgManyTest/target/cgManyTest-1.0-SNAPSHOT-jar-with-dependencies.jar",
+                "--vs",
+                "src/test/resources/scripts/othertest_scripts/test_cgManyTest.sh",
+                "--bs",
+                "src/test/resources/scripts/othertest_scripts/build_cgManyTest.sh",
+                "--logs",
+                "cgManyTest_log.txt",
+                "--method-reduction"
+            ]
         }
     ]
 }
