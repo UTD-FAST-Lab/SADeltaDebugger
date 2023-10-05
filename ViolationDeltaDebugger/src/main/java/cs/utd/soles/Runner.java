@@ -6,6 +6,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
+import cs.utd.soles.reduction.MethodReduction;
 import cs.utd.soles.setup.ArgsHandler;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.util.SanityException;
@@ -114,6 +115,24 @@ public class Runner {
 
         long newTimeOutMillis = Math.max((beforetime + (timeoutTimeMinutes*M_TO_MILLIS) ) - System.currentTimeMillis(),0);
         System.out.println("CU after BR: "+bestCuList);
+
+
+        // Do call graph reduction
+        beforetime = System.currentTimeMillis();
+        MethodReduction methodReduction = new MethodReduction(programInfo, (timeoutTimeMinutes) * M_TO_MILLIS);
+
+        if (ar.methodReduction){
+            System.out.println("\n\n\n\n" + methodReduction.findEntryPoint());
+            ArrayList<Object> requirements = new ArrayList<>();
+            requirements.add(bestCuList);
+            methodReduction.reduce(requirements);
+
+        }
+
+
+        newTimeOutMillis = Math.max((beforetime + (timeoutTimeMinutes*M_TO_MILLIS) ) - System.currentTimeMillis(),0);
+        System.out.println("CU after Method: "+bestCuList);
+        
 
         HDDReduction hddReduction = new HDDReduction(programInfo, newTimeOutMillis);
         if(ar.hdd) {
